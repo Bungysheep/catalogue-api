@@ -8,6 +8,7 @@ import (
 	"github.com/bungysheep/catalogue-api/pkg/configs"
 	productmodel "github.com/bungysheep/catalogue-api/pkg/models/v1/product"
 	"github.com/bungysheep/catalogue-api/pkg/protocols/database"
+	"github.com/bungysheep/catalogue-api/pkg/repositories/v1/unitofmeasurerepository"
 )
 
 // IProductRepository type
@@ -17,6 +18,7 @@ type IProductRepository interface {
 	Create(context.Context, *productmodel.Product) (int64, error)
 	Update(context.Context, *productmodel.Product) (int64, error)
 	Delete(context.Context, int64) (int64, error)
+	DeleteByCatalogue(context.Context, string) error
 }
 
 type productRepository struct {
@@ -77,6 +79,14 @@ func (prodRepo *productRepository) GetByID(ctx context.Context, id int64) (*prod
 
 	result.CreatedAt, _ = time.Parse(configs.DATEFORMAT, createdAt)
 	result.ModifiedAt, _ = time.Parse(configs.DATEFORMAT, modifiedAt)
+
+	uomRepo := unitofmeasurerepository.NewUnitOfMeasureRepository()
+	uoms, err := uomRepo.GetByProduct(ctx, id)
+	if err != nil {
+		return result, err
+	}
+
+	result.UnitOfMeasures = uoms
 
 	return result, nil
 }
@@ -208,4 +218,27 @@ func (prodRepo *productRepository) Delete(ctx context.Context, id int64) (int64,
 	}
 
 	return result.RowsAffected()
+}
+
+func (prodRepo *productRepository) DeleteByCatalogue(ctx context.Context, clgCode string) error {
+	conn, err := database.DbConnection.Conn(ctx)
+	if err != nil {
+		return fmt.Errorf("Failed connecting to database, error: %v", err)
+	}
+	defer conn.Close()
+
+	stmt, err := conn.PrepareContext(ctx,
+		`DELETE FROM products 
+		WHERE clg_code=?`)
+	if err != nil {
+		return fmt.Errorf("Failed preparing delete v, error: %v", err)
+	}
+	defer stmt.Close()
+
+	_, err = stmt.ExecContext(ctx, clgCode)
+	if err != nil {
+		return fmt.Errorf("Failed deleting product, error: %v", err)
+	}
+
+	return nil
 }

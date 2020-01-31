@@ -56,17 +56,6 @@ func (prodCtl *ProductController) GetByID(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	if result != nil {
-		uomRepo := unitofmeasurerepository.NewUnitOfMeasureRepository()
-		uoms, err := uomRepo.GetByProduct(r.Context(), id)
-		if err != nil {
-			prodCtl.WriteResponse(w, http.StatusInternalServerError, false, nil, err.Error())
-			return
-		}
-
-		result.UnitOfMeasures = uoms
-	}
-
 	prodCtl.WriteResponse(w, http.StatusOK, true, result, "")
 }
 
@@ -106,6 +95,31 @@ func (prodCtl *ProductController) Create(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
+	if result != nil {
+		uomRepo := unitofmeasurerepository.NewUnitOfMeasureRepository()
+		for _, newUom := range newProd.GetUoms() {
+			newUom.Vers = 1
+
+			lastUomID, err := uomRepo.Create(r.Context(), newUom)
+			if err != nil {
+				prodCtl.WriteResponse(w, http.StatusInternalServerError, false, nil, err.Error())
+				return
+			}
+
+			if lastUomID == 0 {
+				prodCtl.WriteResponse(w, http.StatusNotFound, false, nil, "Unit of Measure was not created.")
+				return
+			}
+		}
+
+		uoms, err := uomRepo.GetByProduct(r.Context(), lastID)
+		if err != nil {
+			prodCtl.WriteResponse(w, http.StatusInternalServerError, false, nil, err.Error())
+			return
+		}
+		result.UnitOfMeasures = uoms
+	}
+
 	prodCtl.WriteResponse(w, http.StatusAccepted, true, result, "Product has been created.")
 }
 
@@ -119,7 +133,7 @@ func (prodCtl *ProductController) Update(w http.ResponseWriter, r *http.Request)
 	authClaims := r.Context().Value(contextkey.ClaimToken).(signinclaimresource.SignInClaimResource)
 
 	prodRepo := productrepository.NewProductRepository()
-	oldClg, err := prodRepo.GetByID(r.Context(), id)
+	oldProd, err := prodRepo.GetByID(r.Context(), id)
 	if err != nil {
 		prodCtl.WriteResponse(w, http.StatusInternalServerError, false, nil, err.Error())
 		return
@@ -132,17 +146,17 @@ func (prodCtl *ProductController) Update(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	if oldClg.GetVers() != updProd.GetVers() {
+	if oldProd.GetVers() != updProd.GetVers() {
 		prodCtl.WriteResponse(w, http.StatusBadRequest, false, nil, "Invalid product version.")
 		return
 	}
 
-	oldClg.Description = updProd.GetDescription()
-	oldClg.Details = updProd.GetDetails()
-	oldClg.Status = updProd.GetStatus()
-	oldClg.ModifiedBy = authClaims.GetUsername()
+	oldProd.Description = updProd.GetDescription()
+	oldProd.Details = updProd.GetDetails()
+	oldProd.Status = updProd.GetStatus()
+	oldProd.ModifiedBy = authClaims.GetUsername()
 
-	nbrRows, err := prodRepo.Update(r.Context(), oldClg)
+	nbrRows, err := prodRepo.Update(r.Context(), oldProd)
 	if err != nil {
 		prodCtl.WriteResponse(w, http.StatusInternalServerError, false, nil, err.Error())
 		return
@@ -153,10 +167,42 @@ func (prodCtl *ProductController) Update(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	result, err := prodRepo.GetByID(r.Context(), oldClg.GetID())
+	result, err := prodRepo.GetByID(r.Context(), oldProd.GetID())
 	if err != nil {
 		prodCtl.WriteResponse(w, http.StatusInternalServerError, false, nil, err.Error())
 		return
+	}
+
+	if result != nil {
+		uomRepo := unitofmeasurerepository.NewUnitOfMeasureRepository()
+		for _, updUom := range updProd.GetUoms() {
+			oldUom := oldProd.GetUom(updUom.GetID())
+
+			if oldUom != nil {
+				oldUom.Code = updUom.GetCode()
+				oldUom.Description = updUom.GetDescription()
+				oldUom.IsDefault = updUom.GetIsDefault()
+				oldUom.Ratio = updUom.GetRatio()
+
+				nbrRow, err := uomRepo.Update(r.Context(), oldUom)
+				if err != nil {
+					prodCtl.WriteResponse(w, http.StatusInternalServerError, false, nil, err.Error())
+					return
+				}
+
+				if nbrRow == 0 {
+					prodCtl.WriteResponse(w, http.StatusNotFound, false, nil, "Unit of Measure was not created.")
+					return
+				}
+			}
+		}
+
+		uoms, err := uomRepo.GetByProduct(r.Context(), oldProd.GetID())
+		if err != nil {
+			prodCtl.WriteResponse(w, http.StatusInternalServerError, false, nil, err.Error())
+			return
+		}
+		result.UnitOfMeasures = uoms
 	}
 
 	prodCtl.WriteResponse(w, http.StatusAccepted, true, result, "Product has been updated.")
@@ -178,6 +224,14 @@ func (prodCtl *ProductController) Delete(w http.ResponseWriter, r *http.Request)
 
 	if nbrRows == 0 {
 		prodCtl.WriteResponse(w, http.StatusNotFound, false, nil, "Product does not exist.")
+		return
+	}
+
+	// Also delete all related unit of measures
+	uomRepo := unitofmeasurerepository.NewUnitOfMeasureRepository()
+	err = uomRepo.DeleteByProduct(r.Context(), id)
+	if err != nil {
+		prodCtl.WriteResponse(w, http.StatusInternalServerError, false, nil, err.Error())
 		return
 	}
 

@@ -96,7 +96,7 @@ func getProduct(t *testing.T) {
 	dataUomOutput := dataUoms[0].(map[string]interface{})
 	assert.Equal(t, dataUomOutput["prod_id"], float64(2))
 	assert.Equal(t, dataUomOutput["code"], "EACH")
-	assert.Equal(t, dataUomOutput["descr"], "Each")
+	assert.Equal(t, dataUomOutput["description"], "Each")
 	assert.Equal(t, dataUomOutput["is_default"], true)
 	assert.Equal(t, dataUomOutput["ratio"], float64(1))
 }
@@ -111,6 +111,24 @@ func createProduct(t *testing.T) {
 		"created_at":  time.Now(),
 		"modified_at": time.Now(),
 		"vers":        1,
+		"uoms": []interface{}{
+			map[string]interface{}{
+				"prod_id":     4,
+				"code":        "EACH",
+				"description": "Each",
+				"is_default":  true,
+				"ratio":       1,
+				"vers":        1,
+			},
+			map[string]interface{}{
+				"prod_id":     4,
+				"code":        "BOX",
+				"description": "Box",
+				"is_default":  false,
+				"ratio":       2,
+				"vers":        1,
+			},
+		},
 	}
 
 	bodyReq, err := json.Marshal(dataInput)
@@ -151,11 +169,20 @@ func createProduct(t *testing.T) {
 
 	assert.Equal(t, createdAt.Local().Format(configs.DATEFORMAT), dataInput["created_at"].(time.Time).Format(configs.DATEFORMAT))
 	assert.Equal(t, modifiedAt.Local().Format(configs.DATEFORMAT), dataInput["modified_at"].(time.Time).Format(configs.DATEFORMAT))
+
+	dataUoms := dataOutput["uoms"].([]interface{})
+	assert.Equal(t, len(dataUoms), 2)
+
+	dataUomOutput := dataUoms[0].(map[string]interface{})
+	assert.Equal(t, dataUomOutput["prod_id"], float64(4))
+	assert.Equal(t, dataUomOutput["code"], "EACH")
+	assert.Equal(t, dataUomOutput["description"], "Each")
+	assert.Equal(t, dataUomOutput["is_default"], true)
+	assert.Equal(t, dataUomOutput["ratio"], float64(1))
 }
 
 func updateProductWithInvalidVersion(t *testing.T) {
 	dataInput := map[string]interface{}{
-		"clg_code":    "CLG_TEST_2",
 		"code":        "Q-0001",
 		"description": "Hardisk - Updated",
 		"details":     "Hardisk - Updated",
@@ -163,6 +190,24 @@ func updateProductWithInvalidVersion(t *testing.T) {
 		"created_at":  time.Now(),
 		"modified_at": time.Now(),
 		"vers":        2,
+		"uoms": []interface{}{
+			map[string]interface{}{
+				"id":          7,
+				"code":        "EACH",
+				"description": "Each",
+				"is_default":  true,
+				"ratio":       1,
+				"vers":        1,
+			},
+			map[string]interface{}{
+				"id":          8,
+				"code":        "BOX",
+				"description": "Box",
+				"is_default":  false,
+				"ratio":       2,
+				"vers":        1,
+			},
+		},
 	}
 
 	bodyReq, err := json.Marshal(dataInput)
@@ -192,7 +237,6 @@ func updateProductWithInvalidVersion(t *testing.T) {
 
 func updateProduct(t *testing.T) {
 	dataInput := map[string]interface{}{
-		"clg_code":    "CLG_TEST_2",
 		"code":        "Q-0001",
 		"description": "Hardisk - Updated",
 		"details":     "Hardisk - Updated",
@@ -200,6 +244,24 @@ func updateProduct(t *testing.T) {
 		"created_at":  time.Now(),
 		"modified_at": time.Now(),
 		"vers":        1,
+		"uoms": []interface{}{
+			map[string]interface{}{
+				"id":          7,
+				"code":        "EACH",
+				"description": "Each",
+				"is_default":  true,
+				"ratio":       1,
+				"vers":        1,
+			},
+			map[string]interface{}{
+				"id":          8,
+				"code":        "BOX",
+				"description": "Box",
+				"is_default":  false,
+				"ratio":       4,
+				"vers":        1,
+			},
+		},
 	}
 
 	bodyReq, err := json.Marshal(dataInput)
@@ -238,6 +300,16 @@ func updateProduct(t *testing.T) {
 	modifiedAt, _ := time.Parse(time.RFC3339, dataOutput["modified_at"].(string))
 
 	assert.Equal(t, modifiedAt.Local().Format(configs.DATEFORMAT), dataInput["modified_at"].(time.Time).Format(configs.DATEFORMAT))
+
+	dataUoms := dataOutput["uoms"].([]interface{})
+	assert.Equal(t, len(dataUoms), 2)
+
+	dataUomOutput := dataUoms[1].(map[string]interface{})
+	assert.Equal(t, dataUomOutput["prod_id"], float64(4))
+	assert.Equal(t, dataUomOutput["code"], "BOX")
+	assert.Equal(t, dataUomOutput["description"], "Box")
+	assert.Equal(t, dataUomOutput["is_default"], false)
+	assert.Equal(t, dataUomOutput["ratio"], float64(4))
 }
 
 func deleteProduct(t *testing.T) {

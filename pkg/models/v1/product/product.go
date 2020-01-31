@@ -97,3 +97,14 @@ func (prod *Product) GetDefaultUom() *unitofmeasure.UnitOfMeasure {
 func (prod *Product) GetUoms() []*unitofmeasure.UnitOfMeasure {
 	return prod.UnitOfMeasures
 }
+
+// GetUom - Returns uom
+func (prod *Product) GetUom(uomID int64) *unitofmeasure.UnitOfMeasure {
+	for _, uom := range prod.UnitOfMeasures {
+		if uom.GetID() == uomID {
+			return uom
+		}
+	}
+
+	return nil
+}

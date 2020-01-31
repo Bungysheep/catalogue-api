@@ -15,6 +15,7 @@ type IUnitOfMeasureRepository interface {
 	Create(context.Context, *unitofmeasuremodel.UnitOfMeasure) (int64, error)
 	Update(context.Context, *unitofmeasuremodel.UnitOfMeasure) (int64, error)
 	Delete(context.Context, int64) (int64, error)
+	DeleteByProduct(context.Context, int64) error
 }
 
 type unitOfMeasureRepository struct {
@@ -129,7 +130,7 @@ func (uomRepo *unitOfMeasureRepository) Create(ctx context.Context, data *unitof
 	defer conn.Close()
 
 	stmt, err := conn.PrepareContext(ctx,
-		`INSERT INTO catalogues 
+		`INSERT INTO product_uoms 
 			(prod_id, code, descr, is_default, ratio, vers) 
 		VALUES (?, ?, ?, ?, ?, 1)`)
 	if err != nil {
@@ -142,7 +143,7 @@ func (uomRepo *unitOfMeasureRepository) Create(ctx context.Context, data *unitof
 		return 0, fmt.Errorf("Failed inserting unit or measure, error: %v", err)
 	}
 
-	return result.RowsAffected()
+	return result.LastInsertId()
 }
 
 func (uomRepo *unitOfMeasureRepository) Update(ctx context.Context, data *unitofmeasuremodel.UnitOfMeasure) (int64, error) {
@@ -189,4 +190,27 @@ func (uomRepo *unitOfMeasureRepository) Delete(ctx context.Context, id int64) (i
 	}
 
 	return result.RowsAffected()
+}
+
+func (uomRepo *unitOfMeasureRepository) DeleteByProduct(ctx context.Context, prodID int64) error {
+	conn, err := database.DbConnection.Conn(ctx)
+	if err != nil {
+		return fmt.Errorf("Failed connecting to database, error: %v", err)
+	}
+	defer conn.Close()
+
+	stmt, err := conn.PrepareContext(ctx,
+		`DELETE FROM product_uoms 
+		WHERE prod_id=?`)
+	if err != nil {
+		return fmt.Errorf("Failed preparing delete unit or measure, error: %v", err)
+	}
+	defer stmt.Close()
+
+	_, err = stmt.ExecContext(ctx, prodID)
+	if err != nil {
+		return fmt.Errorf("Failed deleting unit or measure, error: %v", err)
+	}
+
+	return nil
 }

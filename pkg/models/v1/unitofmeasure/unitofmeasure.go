@@ -5,7 +5,7 @@ type UnitOfMeasure struct {
 	ID          int64   `json:"id"`
 	ProdID      int64   `json:"prod_id"`
 	Code        string  `json:"code"`
-	Description string  `json:"descr"`
+	Description string  `json:"description"`
 	IsDefault   bool    `json:"is_default"`
 	Ratio       float64 `json:"ratio"`
 	Vers        int64   `json:"vers"`

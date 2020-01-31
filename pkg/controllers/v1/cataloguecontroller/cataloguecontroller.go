@@ -10,6 +10,7 @@ import (
 	cataloguemodel "github.com/bungysheep/catalogue-api/pkg/models/v1/catalogue"
 	"github.com/bungysheep/catalogue-api/pkg/models/v1/signinclaimresource"
 	"github.com/bungysheep/catalogue-api/pkg/repositories/v1/cataloguerepository"
+	"github.com/bungysheep/catalogue-api/pkg/repositories/v1/productrepository"
 	"github.com/gorilla/mux"
 )
 
@@ -162,6 +163,14 @@ func (clgCtl *CatalogueController) Delete(w http.ResponseWriter, r *http.Request
 
 	if nbrRows == 0 {
 		clgCtl.WriteResponse(w, http.StatusNotFound, false, nil, "Catalogue does not exist.")
+		return
+	}
+
+	// Also delete all related products
+	prodRepo := productrepository.NewProductRepository()
+	err = prodRepo.DeleteByCatalogue(r.Context(), code)
+	if err != nil {
+		clgCtl.WriteResponse(w, http.StatusInternalServerError, false, nil, err.Error())
 		return
 	}
 
