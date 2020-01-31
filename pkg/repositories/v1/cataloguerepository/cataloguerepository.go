@@ -19,7 +19,6 @@ type ICatalogueRepository interface {
 	Delete(context.Context, string) (int64, error)
 }
 
-// CatalogueRepository type
 type catalogueRepository struct {
 }
 
@@ -146,13 +145,13 @@ func (clgRepo *catalogueRepository) Create(ctx context.Context, data *cataloguem
 	stmt, err := conn.PrepareContext(ctx,
 		`INSERT INTO catalogues 
 			(code, descr, details, status, created_by, created_at, modified_by, modified_at, vers) 
-		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`)
+		VALUES (?, ?, ?, ?, ?, ?, ?, ?, 1)`)
 	if err != nil {
 		return 0, fmt.Errorf("Failed preparing insert catalogue, error: %v", err)
 	}
 	defer stmt.Close()
 
-	result, err := stmt.ExecContext(ctx, data.GetCode(), data.GetDescription(), data.GetDetails(), data.GetStatus(), data.GetCreatedBy(), data.GetCreatedAt(), data.GetModifiedBy(), data.GetModifiedAt(), data.GetVers())
+	result, err := stmt.ExecContext(ctx, data.GetCode(), data.GetDescription(), data.GetDetails(), data.GetStatus(), data.GetCreatedBy(), data.GetCreatedAt(), data.GetModifiedBy(), data.GetModifiedAt())
 	if err != nil {
 		return 0, fmt.Errorf("Failed inserting catalogue, error: %v", err)
 	}

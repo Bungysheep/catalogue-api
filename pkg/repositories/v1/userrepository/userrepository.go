@@ -17,7 +17,6 @@ type IUserRepository interface {
 	Create(context.Context, *usermodel.User) (int64, error)
 }
 
-// UserRepository type
 type userRepository struct {
 }
 
@@ -145,13 +144,13 @@ func (usrRepo *userRepository) Create(ctx context.Context, data *usermodel.User)
 
 	stmt, err := conn.PrepareContext(ctx,
 		`INSERT INTO users (username, name, email, password, status, created_by, created_at, modified_by, modified_at, vers) 
-		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`)
+		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 1)`)
 	if err != nil {
 		return 0, fmt.Errorf("Failed preparing create user, error: %v", err)
 	}
 	defer stmt.Close()
 
-	result, err := stmt.ExecContext(ctx, data.GetUsername(), data.GetName(), data.GetEmail(), data.GetPassword(), data.GetStatus(), data.GetCreatedBy(), data.GetCreatedAt(), data.GetModifiedBy(), data.GetModifiedAt(), data.GetVers())
+	result, err := stmt.ExecContext(ctx, data.GetUsername(), data.GetName(), data.GetEmail(), data.GetPassword(), data.GetStatus(), data.GetCreatedBy(), data.GetCreatedAt(), data.GetModifiedBy(), data.GetModifiedAt())
 	if err != nil {
 		return 0, fmt.Errorf("Failed inserting user, error: %v", err)
 	}

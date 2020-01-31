@@ -3,6 +3,7 @@ package routes
 import (
 	authcontrollerv1 "github.com/bungysheep/catalogue-api/pkg/controllers/v1/authcontroller"
 	cataloguecontrollerv1 "github.com/bungysheep/catalogue-api/pkg/controllers/v1/cataloguecontroller"
+	productcontrollerv1 "github.com/bungysheep/catalogue-api/pkg/controllers/v1/productcontroller"
 	"github.com/bungysheep/catalogue-api/pkg/protocols/rest/middlewares"
 	"github.com/gorilla/mux"
 )
@@ -29,6 +30,15 @@ func APIV1RouteHandler() *mux.Router {
 	clgRouter.HandleFunc("/catalogues", catalogueController.Create).Methods("POST")
 	clgRouter.HandleFunc("/catalogues/{id}", catalogueController.Update).Methods("PUT")
 	clgRouter.HandleFunc("/catalogues/{id}", catalogueController.Delete).Methods("DELETE")
+
+	productController := productcontrollerv1.NewProductController()
+	prodRouter := v1Router.PathPrefix("").Subrouter()
+	prodRouter.Use(middlewares.AuthenticationMiddleware)
+	prodRouter.HandleFunc("/products/bycatalogue/{clg_code}", productController.GetByCatalogue).Methods("GET")
+	prodRouter.HandleFunc("/products/{id}", productController.GetByID).Methods("GET")
+	prodRouter.HandleFunc("/products", productController.Create).Methods("POST")
+	prodRouter.HandleFunc("/products/{id}", productController.Update).Methods("PUT")
+	prodRouter.HandleFunc("/products/{id}", productController.Delete).Methods("DELETE")
 
 	return router
 }

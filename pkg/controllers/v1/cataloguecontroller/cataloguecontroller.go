@@ -42,6 +42,8 @@ func (clgCtl *CatalogueController) GetByID(w http.ResponseWriter, r *http.Reques
 	params := mux.Vars(r)
 	code := params["id"]
 
+	log.Printf("Retrieving Catalogue '%v'.\n", code)
+
 	clgRepo := cataloguerepository.NewCatalogueRepository()
 	result, err := clgRepo.GetByID(r.Context(), code)
 	if err != nil {
@@ -96,7 +98,7 @@ func (clgCtl *CatalogueController) Update(w http.ResponseWriter, r *http.Request
 	params := mux.Vars(r)
 	code := params["id"]
 
-	log.Printf("Updating catalogue code: %v.\n", code)
+	log.Printf("Updating Catalogue '%v'.\n", code)
 
 	authClaims := r.Context().Value(contextkey.ClaimToken).(signinclaimresource.SignInClaimResource)
 
@@ -149,7 +151,7 @@ func (clgCtl *CatalogueController) Delete(w http.ResponseWriter, r *http.Request
 	params := mux.Vars(r)
 	code := params["id"]
 
-	log.Printf("Deleting catalogue code: %v.\n", code)
+	log.Printf("Deleting Catalogue '%v'.\n", code)
 
 	clgRepo := cataloguerepository.NewCatalogueRepository()
 	nbrRows, err := clgRepo.Delete(r.Context(), code)
