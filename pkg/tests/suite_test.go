@@ -80,13 +80,13 @@ func setupDatabase(ctx context.Context) {
 					('CLG_TEST_1', 'P-0003', 'Tissue', 'Tissue', 'TESTUSER', CURRENT_TIMESTAMP, 'TESTUSER', CURRENT_TIMESTAMP, 1)`)
 
 	// Seed product uoms
-	_, err = tx.Exec(`INSERT INTO product_uoms (prod_id, code, descr, is_default, ratio, vers) VALUES 
-					(1, 'EACH', 'Each', 1, 1, 1),
-					(1, 'BOX', 'Box', 0, 2, 1),
-					(2, 'EACH', 'Each', 1, 1, 1),
-					(2, 'BOX', 'Box', 0, 2, 1),
-					(3, 'EACH', 'Each', 1, 1, 1),
-					(3, 'PACK', 'Pack', 0, 6, 1)`)
+	_, err = tx.Exec(`INSERT INTO product_uoms (prod_id, code, descr, ratio, vers) VALUES 
+					(1, 'EACH', 'Each', 1, 1),
+					(1, 'BOX', 'Box', 2, 1),
+					(2, 'EACH', 'Each', 1, 1),
+					(2, 'BOX', 'Box', 2, 1),
+					(3, 'EACH', 'Each', 1, 1),
+					(3, 'PACK', 'Pack', 6, 1)`)
 
 	if err != nil {
 		tx.Rollback()

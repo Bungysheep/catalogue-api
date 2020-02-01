@@ -85,7 +85,7 @@ func (prod *Product) GetVers() int64 {
 // GetDefaultUom - Returns default uom
 func (prod *Product) GetDefaultUom() *unitofmeasure.UnitOfMeasure {
 	for _, uom := range prod.UnitOfMeasures {
-		if uom.GetIsDefault() {
+		if uom.IsDefault() {
 			return uom
 		}
 	}
@@ -93,8 +93,8 @@ func (prod *Product) GetDefaultUom() *unitofmeasure.UnitOfMeasure {
 	return nil
 }
 
-// GetUoms - Returns product uoms
-func (prod *Product) GetUoms() []*unitofmeasure.UnitOfMeasure {
+// GetAllUoms - Returns all product uoms
+func (prod *Product) GetAllUoms() []*unitofmeasure.UnitOfMeasure {
 	return prod.UnitOfMeasures
 }
 
@@ -107,4 +107,43 @@ func (prod *Product) GetUom(uomID int64) *unitofmeasure.UnitOfMeasure {
 	}
 
 	return nil
+}
+
+// GetNumberOfDefaultUom - Returns number of default uom
+func (prod *Product) GetNumberOfDefaultUom() int {
+	count := 0
+
+	for _, uom := range prod.UnitOfMeasures {
+		if uom.IsDefault() {
+			count++
+		}
+
+		if count > 1 {
+			break
+		}
+	}
+
+	return count
+}
+
+// DoValidate - Validate product
+func (prod *Product) DoValidate() (bool, string) {
+
+	nbrDefaultUom := prod.GetNumberOfDefaultUom()
+	if nbrDefaultUom == 0 {
+		return false, "No default unit of measure."
+	} else if nbrDefaultUom > 1 {
+		return false, "Found multiple default unit of measure."
+	}
+
+	var ok bool
+	var message string
+	for _, uom := range prod.UnitOfMeasures {
+		ok, message = uom.DoValidate()
+		if !ok {
+			return false, message
+		}
+	}
+
+	return true, ""
 }

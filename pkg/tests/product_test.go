@@ -19,6 +19,10 @@ func TestProduct(t *testing.T) {
 
 	t.Run("Create product", createProduct)
 
+	t.Run("Create product with multi default unit of measure", createProductWithMultiDefaultUom)
+
+	t.Run("Create product without default unit of measure", createProductWithoutDefaultUom)
+
 	t.Run("Update product with invalid version", updateProductWithInvalidVersion)
 
 	t.Run("Update product", updateProduct)
@@ -97,7 +101,6 @@ func getProduct(t *testing.T) {
 	assert.Equal(t, dataUomOutput["prod_id"], float64(2))
 	assert.Equal(t, dataUomOutput["code"], "EACH")
 	assert.Equal(t, dataUomOutput["description"], "Each")
-	assert.Equal(t, dataUomOutput["is_default"], true)
 	assert.Equal(t, dataUomOutput["ratio"], float64(1))
 }
 
@@ -113,18 +116,14 @@ func createProduct(t *testing.T) {
 		"vers":        1,
 		"uoms": []interface{}{
 			map[string]interface{}{
-				"prod_id":     4,
 				"code":        "EACH",
 				"description": "Each",
-				"is_default":  true,
 				"ratio":       1,
 				"vers":        1,
 			},
 			map[string]interface{}{
-				"prod_id":     4,
 				"code":        "BOX",
 				"description": "Box",
-				"is_default":  false,
 				"ratio":       2,
 				"vers":        1,
 			},
@@ -177,8 +176,109 @@ func createProduct(t *testing.T) {
 	assert.Equal(t, dataUomOutput["prod_id"], float64(4))
 	assert.Equal(t, dataUomOutput["code"], "EACH")
 	assert.Equal(t, dataUomOutput["description"], "Each")
-	assert.Equal(t, dataUomOutput["is_default"], true)
 	assert.Equal(t, dataUomOutput["ratio"], float64(1))
+}
+
+func createProductWithMultiDefaultUom(t *testing.T) {
+	dataInput := map[string]interface{}{
+		"clg_code":    "CLG_TEST_2",
+		"code":        "Q-0001",
+		"description": "Hardisk",
+		"details":     "Hardisk",
+		"status":      "A",
+		"created_at":  time.Now(),
+		"modified_at": time.Now(),
+		"vers":        1,
+		"uoms": []interface{}{
+			map[string]interface{}{
+				"code":        "EACH",
+				"description": "Each",
+				"ratio":       1,
+				"vers":        1,
+			},
+			map[string]interface{}{
+				"code":        "BOX",
+				"description": "Box",
+				"ratio":       1,
+				"vers":        1,
+			},
+		},
+	}
+
+	bodyReq, err := json.Marshal(dataInput)
+	assert.NilError(t, err, "Failed to encode body request.")
+
+	req, err := http.NewRequest("POST", "http://localhost:50051/v1/products", bytes.NewBuffer(bodyReq))
+	assert.NilError(t, err, "Failed to create request.")
+
+	req.Header.Add("Authorization", accessTokenTest)
+
+	client := &http.Client{}
+
+	resp, err := client.Do(req)
+	assert.NilError(t, err, "Failed to create product.")
+	assert.Equal(t, resp.StatusCode, http.StatusBadRequest)
+
+	defer resp.Body.Close()
+
+	bodyResp, err := ioutil.ReadAll(resp.Body)
+	assert.NilError(t, err, "Failed to read body response.")
+
+	var respData map[string]interface{}
+	err = json.Unmarshal(bodyResp, &respData)
+	assert.NilError(t, err, "Failed to decode body response.")
+	assert.Equal(t, respData["success"], false)
+}
+
+func createProductWithoutDefaultUom(t *testing.T) {
+	dataInput := map[string]interface{}{
+		"clg_code":    "CLG_TEST_2",
+		"code":        "Q-0001",
+		"description": "Hardisk",
+		"details":     "Hardisk",
+		"status":      "A",
+		"created_at":  time.Now(),
+		"modified_at": time.Now(),
+		"vers":        1,
+		"uoms": []interface{}{
+			map[string]interface{}{
+				"code":        "EACH",
+				"description": "Each",
+				"ratio":       4,
+				"vers":        1,
+			},
+			map[string]interface{}{
+				"code":        "BOX",
+				"description": "Box",
+				"ratio":       2,
+				"vers":        1,
+			},
+		},
+	}
+
+	bodyReq, err := json.Marshal(dataInput)
+	assert.NilError(t, err, "Failed to encode body request.")
+
+	req, err := http.NewRequest("POST", "http://localhost:50051/v1/products", bytes.NewBuffer(bodyReq))
+	assert.NilError(t, err, "Failed to create request.")
+
+	req.Header.Add("Authorization", accessTokenTest)
+
+	client := &http.Client{}
+
+	resp, err := client.Do(req)
+	assert.NilError(t, err, "Failed to create product.")
+	assert.Equal(t, resp.StatusCode, http.StatusBadRequest)
+
+	defer resp.Body.Close()
+
+	bodyResp, err := ioutil.ReadAll(resp.Body)
+	assert.NilError(t, err, "Failed to read body response.")
+
+	var respData map[string]interface{}
+	err = json.Unmarshal(bodyResp, &respData)
+	assert.NilError(t, err, "Failed to decode body response.")
+	assert.Equal(t, respData["success"], false)
 }
 
 func updateProductWithInvalidVersion(t *testing.T) {
@@ -195,7 +295,6 @@ func updateProductWithInvalidVersion(t *testing.T) {
 				"id":          7,
 				"code":        "EACH",
 				"description": "Each",
-				"is_default":  true,
 				"ratio":       1,
 				"vers":        1,
 			},
@@ -203,7 +302,6 @@ func updateProductWithInvalidVersion(t *testing.T) {
 				"id":          8,
 				"code":        "BOX",
 				"description": "Box",
-				"is_default":  false,
 				"ratio":       2,
 				"vers":        1,
 			},
@@ -249,7 +347,6 @@ func updateProduct(t *testing.T) {
 				"id":          7,
 				"code":        "EACH",
 				"description": "Each",
-				"is_default":  true,
 				"ratio":       1,
 				"vers":        1,
 			},
@@ -257,7 +354,6 @@ func updateProduct(t *testing.T) {
 				"id":          8,
 				"code":        "BOX",
 				"description": "Box",
-				"is_default":  false,
 				"ratio":       4,
 				"vers":        1,
 			},
@@ -308,7 +404,6 @@ func updateProduct(t *testing.T) {
 	assert.Equal(t, dataUomOutput["prod_id"], float64(4))
 	assert.Equal(t, dataUomOutput["code"], "BOX")
 	assert.Equal(t, dataUomOutput["description"], "Box")
-	assert.Equal(t, dataUomOutput["is_default"], false)
 	assert.Equal(t, dataUomOutput["ratio"], float64(4))
 }
 

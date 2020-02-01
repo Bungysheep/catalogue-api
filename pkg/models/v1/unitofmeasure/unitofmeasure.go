@@ -6,7 +6,6 @@ type UnitOfMeasure struct {
 	ProdID      int64   `json:"prod_id"`
 	Code        string  `json:"code"`
 	Description string  `json:"description"`
-	IsDefault   bool    `json:"is_default"`
 	Ratio       float64 `json:"ratio"`
 	Vers        int64   `json:"vers"`
 }
@@ -36,11 +35,6 @@ func (uom *UnitOfMeasure) GetDescription() string {
 	return uom.Description
 }
 
-// GetIsDefault - Returns whether it is default uom or not
-func (uom *UnitOfMeasure) GetIsDefault() bool {
-	return uom.IsDefault
-}
-
 // GetRatio - Returns uom ratio
 func (uom *UnitOfMeasure) GetRatio() float64 {
 	return uom.Ratio
@@ -49,4 +43,14 @@ func (uom *UnitOfMeasure) GetRatio() float64 {
 // GetVers - Returns vers
 func (uom *UnitOfMeasure) GetVers() int64 {
 	return uom.Vers
+}
+
+// IsDefault - Whether default uom or not
+func (uom *UnitOfMeasure) IsDefault() bool {
+	return uom.Ratio == 1
+}
+
+// DoValidate - Validate uom
+func (uom *UnitOfMeasure) DoValidate() (bool, string) {
+	return true, ""
 }

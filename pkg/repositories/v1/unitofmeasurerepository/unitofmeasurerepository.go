@@ -36,7 +36,7 @@ func (uomRepo *unitOfMeasureRepository) GetByID(ctx context.Context, id int64) (
 	defer conn.Close()
 
 	stmt, err := conn.PrepareContext(ctx,
-		`SELECT id, prod_id, code, descr, is_default, ratio, vers
+		`SELECT id, prod_id, code, descr, ratio, vers
 		FROM product_uoms 
 		WHERE id=?`)
 	if err != nil {
@@ -62,7 +62,6 @@ func (uomRepo *unitOfMeasureRepository) GetByID(ctx context.Context, id int64) (
 		&result.ProdID,
 		&result.Code,
 		&result.Description,
-		&result.IsDefault,
 		&result.Ratio,
 		&result.Vers); err != nil {
 		return nil, fmt.Errorf("Failed retrieve unit of measure record value, error: %v", err)
@@ -81,10 +80,10 @@ func (uomRepo *unitOfMeasureRepository) GetByProduct(ctx context.Context, prodID
 	defer conn.Close()
 
 	stmt, err := conn.PrepareContext(ctx,
-		`SELECT id, prod_id, code, descr, is_default, ratio, vers
+		`SELECT id, prod_id, code, descr, ratio, vers
 		FROM product_uoms
 		WHERE prod_id=?
-		ORDER BY is_default DESC, ratio ASC`)
+		ORDER BY ratio ASC`)
 	if err != nil {
 		return result, fmt.Errorf("Failed preparing read unit of measure, error: %v", err)
 	}
@@ -110,7 +109,6 @@ func (uomRepo *unitOfMeasureRepository) GetByProduct(ctx context.Context, prodID
 			&uom.ProdID,
 			&uom.Code,
 			&uom.Description,
-			&uom.IsDefault,
 			&uom.Ratio,
 			&uom.Vers); err != nil {
 			return result, fmt.Errorf("Failed retrieve unit of measure record value, error: %v", err)
@@ -131,14 +129,14 @@ func (uomRepo *unitOfMeasureRepository) Create(ctx context.Context, data *unitof
 
 	stmt, err := conn.PrepareContext(ctx,
 		`INSERT INTO product_uoms 
-			(prod_id, code, descr, is_default, ratio, vers) 
-		VALUES (?, ?, ?, ?, ?, 1)`)
+			(prod_id, code, descr, ratio, vers) 
+		VALUES (?, ?, ?, ?, 1)`)
 	if err != nil {
 		return 0, fmt.Errorf("Failed preparing insert unit or measure, error: %v", err)
 	}
 	defer stmt.Close()
 
-	result, err := stmt.ExecContext(ctx, data.GetProdID(), data.GetCode(), data.GetDescription(), data.GetIsDefault(), data.GetRatio())
+	result, err := stmt.ExecContext(ctx, data.GetProdID(), data.GetCode(), data.GetDescription(), data.GetRatio())
 	if err != nil {
 		return 0, fmt.Errorf("Failed inserting unit or measure, error: %v", err)
 	}
@@ -154,14 +152,14 @@ func (uomRepo *unitOfMeasureRepository) Update(ctx context.Context, data *unitof
 	defer conn.Close()
 
 	stmt, err := conn.PrepareContext(ctx,
-		`UPDATE product_uoms SET code=?, descr=?, is_default=?, ratio=?, vers=vers+1 
+		`UPDATE product_uoms SET code=?, descr=?, ratio=?, vers=vers+1 
 		WHERE id=?`)
 	if err != nil {
 		return 0, fmt.Errorf("Failed preparing update unit or measure, error: %v", err)
 	}
 	defer stmt.Close()
 
-	result, err := stmt.ExecContext(ctx, data.GetCode(), data.GetDescription(), data.GetIsDefault(), data.GetRatio(), data.GetID())
+	result, err := stmt.ExecContext(ctx, data.GetCode(), data.GetDescription(), data.GetRatio(), data.GetID())
 	if err != nil {
 		return 0, fmt.Errorf("Failed updating unit or measure, error: %v", err)
 	}

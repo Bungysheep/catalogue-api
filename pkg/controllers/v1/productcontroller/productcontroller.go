@@ -72,6 +72,12 @@ func (prodCtl *ProductController) Create(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
+	valid, message := newProd.DoValidate()
+	if !valid {
+		prodCtl.WriteResponse(w, http.StatusBadRequest, false, nil, message)
+		return
+	}
+
 	newProd.Status = "A"
 	newProd.CreatedBy = authClaims.GetUsername()
 	newProd.ModifiedBy = authClaims.GetUsername()
@@ -97,7 +103,8 @@ func (prodCtl *ProductController) Create(w http.ResponseWriter, r *http.Request)
 
 	if result != nil {
 		uomRepo := unitofmeasurerepository.NewUnitOfMeasureRepository()
-		for _, newUom := range newProd.GetUoms() {
+		for _, newUom := range newProd.GetAllUoms() {
+			newUom.ProdID = lastID
 			newUom.Vers = 1
 
 			lastUomID, err := uomRepo.Create(r.Context(), newUom)
@@ -175,13 +182,12 @@ func (prodCtl *ProductController) Update(w http.ResponseWriter, r *http.Request)
 
 	if result != nil {
 		uomRepo := unitofmeasurerepository.NewUnitOfMeasureRepository()
-		for _, updUom := range updProd.GetUoms() {
+		for _, updUom := range updProd.GetAllUoms() {
 			oldUom := oldProd.GetUom(updUom.GetID())
 
 			if oldUom != nil {
 				oldUom.Code = updUom.GetCode()
 				oldUom.Description = updUom.GetDescription()
-				oldUom.IsDefault = updUom.GetIsDefault()
 				oldUom.Ratio = updUom.GetRatio()
 
 				nbrRow, err := uomRepo.Update(r.Context(), oldUom)
