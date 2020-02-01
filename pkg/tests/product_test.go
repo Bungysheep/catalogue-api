@@ -27,6 +27,8 @@ func TestProduct(t *testing.T) {
 
 	t.Run("Update product", updateProduct)
 
+	t.Run("Update product with adding uom", updateProductWithAddingUom)
+
 	t.Run("Delete product", deleteProduct)
 }
 
@@ -405,6 +407,80 @@ func updateProduct(t *testing.T) {
 	assert.Equal(t, dataUomOutput["code"], "BOX")
 	assert.Equal(t, dataUomOutput["description"], "Box")
 	assert.Equal(t, dataUomOutput["ratio"], float64(4))
+}
+
+func updateProductWithAddingUom(t *testing.T) {
+	dataInput := map[string]interface{}{
+		"code":        "Q-0001",
+		"description": "Hardisk - Updated",
+		"details":     "Hardisk - Updated",
+		"status":      "A",
+		"created_at":  time.Now(),
+		"modified_at": time.Now(),
+		"vers":        2,
+		"uoms": []interface{}{
+			map[string]interface{}{
+				"id":          7,
+				"code":        "EACH",
+				"description": "Each",
+				"ratio":       1,
+				"vers":        1,
+			},
+			map[string]interface{}{
+				"id":          9,
+				"code":        "PACK",
+				"description": "Pack",
+				"ratio":       6,
+				"vers":        1,
+			},
+		},
+	}
+
+	bodyReq, err := json.Marshal(dataInput)
+	assert.NilError(t, err, "Failed to encode body request.")
+
+	req, err := http.NewRequest("PUT", "http://localhost:50051/v1/products/4", bytes.NewBuffer(bodyReq))
+	assert.NilError(t, err, "Failed to create update request.")
+
+	req.Header.Add("Authorization", accessTokenTest)
+
+	client := &http.Client{}
+
+	resp, err := client.Do(req)
+	assert.NilError(t, err, "Failed to update product.")
+	assert.Equal(t, resp.StatusCode, http.StatusAccepted)
+
+	defer resp.Body.Close()
+
+	bodyResp, err := ioutil.ReadAll(resp.Body)
+	assert.NilError(t, err, "Failed to read body response.")
+
+	var respData map[string]interface{}
+	err = json.Unmarshal(bodyResp, &respData)
+	assert.NilError(t, err, "Failed to decode body response.")
+	assert.Equal(t, respData["success"], true)
+
+	dataOutput := respData["data"].(map[string]interface{})
+	assert.Equal(t, dataOutput["clg_code"], "CLG_TEST_2")
+	assert.Equal(t, dataOutput["code"], "Q-0001")
+	assert.Equal(t, dataOutput["description"], "Hardisk - Updated")
+	assert.Equal(t, dataOutput["details"], "Hardisk - Updated")
+	assert.Equal(t, dataOutput["status"], "A")
+	assert.Equal(t, dataOutput["created_by"], "TESTUSER")
+	assert.Equal(t, dataOutput["modified_by"], "TESTUSER")
+
+	modifiedAt, _ := time.Parse(time.RFC3339, dataOutput["modified_at"].(string))
+
+	assert.Equal(t, modifiedAt.Local().Format(configs.DATEFORMAT), dataInput["modified_at"].(time.Time).Format(configs.DATEFORMAT))
+
+	dataUoms := dataOutput["uoms"].([]interface{})
+	assert.Equal(t, len(dataUoms), 3)
+
+	dataUomOutput := dataUoms[2].(map[string]interface{})
+	assert.Equal(t, dataUomOutput["prod_id"], float64(4))
+	assert.Equal(t, dataUomOutput["code"], "PACK")
+	assert.Equal(t, dataUomOutput["description"], "Pack")
+	assert.Equal(t, dataUomOutput["ratio"], float64(6))
 }
 
 func deleteProduct(t *testing.T) {

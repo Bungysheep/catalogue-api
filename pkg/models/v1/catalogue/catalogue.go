@@ -64,3 +64,8 @@ func (clg *Catalogue) GetModifiedAt() time.Time {
 func (clg *Catalogue) GetVers() int64 {
 	return clg.Vers
 }
+
+// DoValidate - Validate catalogue
+func (clg *Catalogue) DoValidate() (bool, string) {
+	return true, ""
+}

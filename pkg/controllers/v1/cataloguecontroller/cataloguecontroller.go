@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"github.com/bungysheep/catalogue-api/pkg/commons/contextkey"
+	"github.com/bungysheep/catalogue-api/pkg/commons/status"
 	"github.com/bungysheep/catalogue-api/pkg/controllers/v1/basecontroller"
 	cataloguemodel "github.com/bungysheep/catalogue-api/pkg/models/v1/catalogue"
 	"github.com/bungysheep/catalogue-api/pkg/models/v1/signinclaimresource"
@@ -68,7 +69,13 @@ func (clgCtl *CatalogueController) Create(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	newClg.Status = "A"
+	valid, message := newClg.DoValidate()
+	if !valid {
+		clgCtl.WriteResponse(w, http.StatusBadRequest, false, nil, message)
+		return
+	}
+
+	newClg.Status = status.Active.String()
 	newClg.CreatedBy = authClaims.GetUsername()
 	newClg.ModifiedBy = authClaims.GetUsername()
 	newClg.Vers = 1

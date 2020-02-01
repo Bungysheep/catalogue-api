@@ -50,6 +50,14 @@ func (uom *UnitOfMeasure) IsDefault() bool {
 	return uom.Ratio == 1
 }
 
+// IsEqual - Whether equal
+func (uom *UnitOfMeasure) IsEqual(otherUom *UnitOfMeasure) bool {
+	return uom.ID == otherUom.GetID() &&
+		uom.Code == otherUom.GetCode() &&
+		uom.Description == otherUom.GetDescription() &&
+		uom.Ratio == otherUom.GetRatio()
+}
+
 // DoValidate - Validate uom
 func (uom *UnitOfMeasure) DoValidate() (bool, string) {
 	return true, ""

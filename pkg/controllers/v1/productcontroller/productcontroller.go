@@ -7,6 +7,7 @@ import (
 	"strconv"
 
 	"github.com/bungysheep/catalogue-api/pkg/commons/contextkey"
+	"github.com/bungysheep/catalogue-api/pkg/commons/status"
 	"github.com/bungysheep/catalogue-api/pkg/controllers/v1/basecontroller"
 	productmodel "github.com/bungysheep/catalogue-api/pkg/models/v1/product"
 	"github.com/bungysheep/catalogue-api/pkg/models/v1/signinclaimresource"
@@ -78,7 +79,7 @@ func (prodCtl *ProductController) Create(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	newProd.Status = "A"
+	newProd.Status = status.Active.String()
 	newProd.CreatedBy = authClaims.GetUsername()
 	newProd.ModifiedBy = authClaims.GetUsername()
 	newProd.Vers = 1
@@ -158,6 +159,12 @@ func (prodCtl *ProductController) Update(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
+	valid, message := updProd.DoValidate()
+	if !valid {
+		prodCtl.WriteResponse(w, http.StatusBadRequest, false, nil, message)
+		return
+	}
+
 	oldProd.Description = updProd.GetDescription()
 	oldProd.Details = updProd.GetDetails()
 	oldProd.Status = updProd.GetStatus()
@@ -185,20 +192,36 @@ func (prodCtl *ProductController) Update(w http.ResponseWriter, r *http.Request)
 		for _, updUom := range updProd.GetAllUoms() {
 			oldUom := oldProd.GetUom(updUom.GetID())
 
-			if oldUom != nil {
-				oldUom.Code = updUom.GetCode()
-				oldUom.Description = updUom.GetDescription()
-				oldUom.Ratio = updUom.GetRatio()
+			if oldUom == nil {
+				updUom.ProdID = oldProd.GetID()
+				updUom.Vers = 1
 
-				nbrRow, err := uomRepo.Update(r.Context(), oldUom)
+				lastUomID, err := uomRepo.Create(r.Context(), updUom)
 				if err != nil {
 					prodCtl.WriteResponse(w, http.StatusInternalServerError, false, nil, err.Error())
 					return
 				}
 
-				if nbrRow == 0 {
+				if lastUomID == 0 {
 					prodCtl.WriteResponse(w, http.StatusNotFound, false, nil, "Unit of Measure was not created.")
 					return
+				}
+			} else {
+				if !updUom.IsEqual(oldUom) {
+					oldUom.Code = updUom.GetCode()
+					oldUom.Description = updUom.GetDescription()
+					oldUom.Ratio = updUom.GetRatio()
+
+					nbrRow, err := uomRepo.Update(r.Context(), oldUom)
+					if err != nil {
+						prodCtl.WriteResponse(w, http.StatusInternalServerError, false, nil, err.Error())
+						return
+					}
+
+					if nbrRow == 0 {
+						prodCtl.WriteResponse(w, http.StatusNotFound, false, nil, "Unit of Measure was not created.")
+						return
+					}
 				}
 			}
 		}

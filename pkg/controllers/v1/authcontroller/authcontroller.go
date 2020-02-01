@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/bungysheep/catalogue-api/pkg/commons/status"
 	"github.com/bungysheep/catalogue-api/pkg/configs"
 	"github.com/bungysheep/catalogue-api/pkg/controllers/v1/basecontroller"
 	"github.com/bungysheep/catalogue-api/pkg/models/v1/signinclaimresource"
@@ -125,7 +126,7 @@ func (authCtl *AuthController) Register(w http.ResponseWriter, r *http.Request) 
 	}
 
 	newUsr.Password = string(pass)
-	newUsr.Status = "A"
+	newUsr.Status = status.Active.String()
 	newUsr.CreatedBy = newUsr.GetUsername()
 	newUsr.ModifiedBy = newUsr.GetUsername()
 	newUsr.Vers = 1
