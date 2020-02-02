@@ -1,14 +1,19 @@
 package user
 
-import "time"
+import (
+	"github.com/bungysheep/catalogue-api/pkg/models/v1/basemodel"
+	"strings"
+	"time"
+)
 
 // User type
 type User struct {
-	Username   string    `json:"username"`
-	Name       string    `json:"name"`
-	Email      string    `json:"email"`
-	Password   string    `json:"password"`
-	Status     string    `json:"status"`
+	basemodel.BaseModel
+	Username   string    `json:"username" mandatory:"true" max_length:"16"`
+	Name       string    `json:"name" mandatory:"true" max_length:"64"`
+	Email      string    `json:"email" mandatory:"true" max_length:"255"`
+	Password   string    `json:"password" mandatory:"true" max_length:"16"`
+	Status     string    `json:"status" mandatory:"true" max_length:"1"`
 	CreatedBy  string    `json:"created_by"`
 	CreatedAt  time.Time `json:"created_at"`
 	ModifiedBy string    `json:"modified_by"`
@@ -23,7 +28,7 @@ func NewUser() *User {
 
 // GetUsername - Returns username
 func (usr *User) GetUsername() string {
-	return usr.Username
+	return strings.ToUpper(usr.Username)
 }
 
 // GetName - Returns name
@@ -43,7 +48,7 @@ func (usr *User) GetPassword() string {
 
 // GetStatus - Returns status
 func (usr *User) GetStatus() string {
-	return usr.Status
+	return strings.ToUpper(usr.Status)
 }
 
 // GetCreatedBy - Returns created by
@@ -69,4 +74,9 @@ func (usr *User) GetModifiedAt() time.Time {
 // GetVers - Returns vers
 func (usr *User) GetVers() int64 {
 	return usr.Vers
+}
+
+// DoValidate - Validate user
+func (usr *User) DoValidate() (bool, string) {
+	return usr.DoValidateBase(*usr)
 }

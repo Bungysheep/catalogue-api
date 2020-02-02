@@ -119,6 +119,12 @@ func (authCtl *AuthController) Register(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
+	valid, message := newUsr.DoValidate()
+	if !valid {
+		authCtl.WriteResponse(w, http.StatusBadRequest, false, nil, message)
+		return
+	}
+
 	pass, err := bcrypt.GenerateFromPassword([]byte(newUsr.GetPassword()), bcrypt.DefaultCost)
 	if err != nil {
 		authCtl.WriteResponse(w, http.StatusBadRequest, false, nil, "Failed to encrypt password.")

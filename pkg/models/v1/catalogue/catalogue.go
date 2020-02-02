@@ -1,13 +1,19 @@
 package catalogue
 
-import "time"
+import (
+	"time"
+
+	"github.com/bungysheep/catalogue-api/pkg/models/v1/basemodel"
+	"strings"
+)
 
 // Catalogue type
 type Catalogue struct {
-	Code        string    `json:"code"`
-	Description string    `json:"description"`
-	Details     string    `json:"details"`
-	Status      string    `json:"status"`
+	basemodel.BaseModel
+	Code        string    `json:"code" mandatory:"true" max_length:"16"`
+	Description string    `json:"description" mandatory:"true" max_length:"32"`
+	Details     string    `json:"details" max_length:"64"`
+	Status      string    `json:"status" mandatory:"true" max_length:"1"`
 	CreatedBy   string    `json:"created_by"`
 	CreatedAt   time.Time `json:"created_at"`
 	ModifiedBy  string    `json:"modified_by"`
@@ -22,7 +28,7 @@ func NewCatalogue() *Catalogue {
 
 // GetCode - Returns catalogue code
 func (clg *Catalogue) GetCode() string {
-	return clg.Code
+	return strings.ToUpper(clg.Code)
 }
 
 // GetDescription - Returns catalogue description
@@ -37,7 +43,7 @@ func (clg *Catalogue) GetDetails() string {
 
 // GetStatus - Returns catalogue status
 func (clg *Catalogue) GetStatus() string {
-	return clg.Status
+	return strings.ToUpper(clg.Status)
 }
 
 // GetCreatedBy - Returns created by
@@ -67,5 +73,5 @@ func (clg *Catalogue) GetVers() int64 {
 
 // DoValidate - Validate catalogue
 func (clg *Catalogue) DoValidate() (bool, string) {
-	return true, ""
+	return clg.DoValidateBase(*clg)
 }

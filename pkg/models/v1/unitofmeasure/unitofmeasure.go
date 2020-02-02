@@ -1,11 +1,16 @@
 package unitofmeasure
 
+import "strings"
+
+import "github.com/bungysheep/catalogue-api/pkg/models/v1/basemodel"
+
 // UnitOfMeasure type
 type UnitOfMeasure struct {
+	basemodel.BaseModel
 	ID          int64   `json:"id"`
 	ProdID      int64   `json:"prod_id"`
-	Code        string  `json:"code"`
-	Description string  `json:"description"`
+	Code        string  `json:"code" mandatory:"true" max_length:"16"`
+	Description string  `json:"description" mandatory:"true" max_length:"32"`
 	Ratio       float64 `json:"ratio"`
 	Vers        int64   `json:"vers"`
 }
@@ -27,7 +32,7 @@ func (uom *UnitOfMeasure) GetProdID() int64 {
 
 // GetCode - Returns uom code
 func (uom *UnitOfMeasure) GetCode() string {
-	return uom.Code
+	return strings.ToUpper(uom.Code)
 }
 
 // GetDescription - Returns uom description
@@ -60,5 +65,5 @@ func (uom *UnitOfMeasure) IsEqual(otherUom *UnitOfMeasure) bool {
 
 // DoValidate - Validate uom
 func (uom *UnitOfMeasure) DoValidate() (bool, string) {
-	return true, ""
+	return uom.DoValidateBase(*uom)
 }

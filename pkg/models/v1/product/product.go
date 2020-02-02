@@ -1,19 +1,22 @@
 package product
 
 import (
+	"strings"
 	"time"
 
+	"github.com/bungysheep/catalogue-api/pkg/models/v1/basemodel"
 	"github.com/bungysheep/catalogue-api/pkg/models/v1/unitofmeasure"
 )
 
 // Product type
 type Product struct {
+	basemodel.BaseModel
 	ID             int64                          `json:"id"`
 	CatalogueCode  string                         `json:"clg_code"`
 	Code           string                         `json:"code"`
-	Description    string                         `json:"description"`
-	Details        string                         `json:"details"`
-	Status         string                         `json:"status"`
+	Description    string                         `json:"description" mandatory:"true" max_length:"32"`
+	Details        string                         `json:"details" max_length:"64"`
+	Status         string                         `json:"status" mandatory:"true" max_length:"1"`
 	CreatedBy      string                         `json:"created_by"`
 	CreatedAt      time.Time                      `json:"created_at"`
 	ModifiedBy     string                         `json:"modified_by"`
@@ -39,7 +42,7 @@ func (prod *Product) GetCatalogueCode() string {
 
 // GetCode - Returns product code
 func (prod *Product) GetCode() string {
-	return prod.Code
+	return strings.ToUpper(prod.Code)
 }
 
 // GetDescription - Returns product description
@@ -54,7 +57,7 @@ func (prod *Product) GetDetails() string {
 
 // GetStatus - Returns product status
 func (prod *Product) GetStatus() string {
-	return prod.Status
+	return strings.ToUpper(prod.Status)
 }
 
 // GetCreatedBy - Returns created by
@@ -128,6 +131,13 @@ func (prod *Product) GetNumberOfDefaultUom() int {
 
 // DoValidate - Validate product
 func (prod *Product) DoValidate() (bool, string) {
+	var ok bool
+	var message string
+
+	ok, message = prod.DoValidateBase(*prod)
+	if !ok {
+		return false, message
+	}
 
 	nbrDefaultUom := prod.GetNumberOfDefaultUom()
 	if nbrDefaultUom == 0 {
@@ -136,8 +146,6 @@ func (prod *Product) DoValidate() (bool, string) {
 		return false, "Found multiple default unit of measure."
 	}
 
-	var ok bool
-	var message string
 	for _, uom := range prod.UnitOfMeasures {
 		ok, message = uom.DoValidate()
 		if !ok {
