@@ -3,22 +3,25 @@ package catalogue
 import (
 	"time"
 
-	"github.com/bungysheep/catalogue-api/pkg/models/v1/basemodel"
 	"strings"
+
+	"github.com/bungysheep/catalogue-api/pkg/models/v1/basemodel"
+	"github.com/bungysheep/catalogue-api/pkg/models/v1/customfielddefinition"
 )
 
 // Catalogue type
 type Catalogue struct {
 	basemodel.BaseModel
-	Code        string    `json:"code" mandatory:"true" max_length:"16"`
-	Description string    `json:"description" mandatory:"true" max_length:"32"`
-	Details     string    `json:"details" max_length:"64"`
-	Status      string    `json:"status" mandatory:"true" max_length:"1"`
-	CreatedBy   string    `json:"created_by"`
-	CreatedAt   time.Time `json:"created_at"`
-	ModifiedBy  string    `json:"modified_by"`
-	ModifiedAt  time.Time `json:"modified_at"`
-	Vers        int64     `json:"vers"`
+	Code                   string                                         `json:"code" mandatory:"true" max_length:"16"`
+	Description            string                                         `json:"description" mandatory:"true" max_length:"32"`
+	Details                string                                         `json:"details" max_length:"64"`
+	Status                 string                                         `json:"status" mandatory:"true" max_length:"1"`
+	CreatedBy              string                                         `json:"created_by"`
+	CreatedAt              time.Time                                      `json:"created_at"`
+	ModifiedBy             string                                         `json:"modified_by"`
+	ModifiedAt             time.Time                                      `json:"modified_at"`
+	Vers                   int64                                          `json:"vers"`
+	CustomFieldDefinitions []*customfielddefinition.CustomFieldDefinition `json:"field_definitions"`
 }
 
 // NewCatalogue - Creates catalogue
@@ -69,6 +72,22 @@ func (clg *Catalogue) GetModifiedAt() time.Time {
 // GetVers - Returns vers
 func (clg *Catalogue) GetVers() int64 {
 	return clg.Vers
+}
+
+// GetAllCustomFieldDefinitions - Returns all custom field definitions
+func (clg *Catalogue) GetAllCustomFieldDefinitions() []*customfielddefinition.CustomFieldDefinition {
+	return clg.CustomFieldDefinitions
+}
+
+// GetCustomFieldDefinition - Returns custom field definitions
+func (clg *Catalogue) GetCustomFieldDefinition(fieldDefID int64) *customfielddefinition.CustomFieldDefinition {
+	for _, fieldDef := range clg.CustomFieldDefinitions {
+		if fieldDef.GetID() == fieldDefID {
+			return fieldDef
+		}
+	}
+
+	return nil
 }
 
 // DoValidate - Validate catalogue

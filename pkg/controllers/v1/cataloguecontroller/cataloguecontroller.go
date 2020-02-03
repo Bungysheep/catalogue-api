@@ -11,6 +11,7 @@ import (
 	cataloguemodel "github.com/bungysheep/catalogue-api/pkg/models/v1/catalogue"
 	"github.com/bungysheep/catalogue-api/pkg/models/v1/signinclaimresource"
 	"github.com/bungysheep/catalogue-api/pkg/repositories/v1/cataloguerepository"
+	"github.com/bungysheep/catalogue-api/pkg/repositories/v1/customfielddefinitionrepository"
 	"github.com/bungysheep/catalogue-api/pkg/repositories/v1/productrepository"
 	"github.com/gorilla/mux"
 )
@@ -98,6 +99,36 @@ func (clgCtl *CatalogueController) Create(w http.ResponseWriter, r *http.Request
 		return
 	}
 
+	if result != nil {
+		fieldDefRepo := customfielddefinitionrepository.NewCustomFieldDefinitionRepository()
+		for _, newFieldDef := range newClg.GetAllCustomFieldDefinitions() {
+			newFieldDef.CatalogueCode = newClg.GetCode()
+			newFieldDef.CreatedBy = newClg.GetCreatedBy()
+			newFieldDef.CreatedAt = newClg.GetCreatedAt()
+			newFieldDef.ModifiedBy = newClg.GetModifiedBy()
+			newFieldDef.ModifiedAt = newClg.GetModifiedAt()
+			newFieldDef.Vers = 1
+
+			nbrRows, err := fieldDefRepo.Create(r.Context(), newFieldDef)
+			if err != nil {
+				clgCtl.WriteResponse(w, http.StatusInternalServerError, false, nil, err.Error())
+				return
+			}
+
+			if nbrRows == 0 {
+				clgCtl.WriteResponse(w, http.StatusNotFound, false, nil, "Custom Field Definition was not created.")
+				return
+			}
+		}
+
+		fieldDefs, err := fieldDefRepo.GetByCatalogue(r.Context(), newClg.GetCode())
+		if err != nil {
+			clgCtl.WriteResponse(w, http.StatusInternalServerError, false, nil, err.Error())
+			return
+		}
+		result.CustomFieldDefinitions = fieldDefs
+	}
+
 	clgCtl.WriteResponse(w, http.StatusAccepted, true, result, "Catalogue has been created.")
 }
 
@@ -170,6 +201,14 @@ func (clgCtl *CatalogueController) Delete(w http.ResponseWriter, r *http.Request
 
 	if nbrRows == 0 {
 		clgCtl.WriteResponse(w, http.StatusNotFound, false, nil, "Catalogue does not exist.")
+		return
+	}
+
+	// Also delete all related custom field definitions
+	fieldDefRepo := customfielddefinitionrepository.NewCustomFieldDefinitionRepository()
+	err = fieldDefRepo.DeleteByCatalogue(r.Context(), code)
+	if err != nil {
+		clgCtl.WriteResponse(w, http.StatusInternalServerError, false, nil, err.Error())
 		return
 	}
 

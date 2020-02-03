@@ -8,6 +8,7 @@ import (
 	"github.com/bungysheep/catalogue-api/pkg/configs"
 	cataloguemodel "github.com/bungysheep/catalogue-api/pkg/models/v1/catalogue"
 	"github.com/bungysheep/catalogue-api/pkg/protocols/database"
+	"github.com/bungysheep/catalogue-api/pkg/repositories/v1/customfielddefinitionrepository"
 )
 
 // ICatalogueRepository type
@@ -75,6 +76,14 @@ func (clgRepo *catalogueRepository) GetByID(ctx context.Context, code string) (*
 
 	result.CreatedAt, _ = time.Parse(configs.DATEFORMAT, createdAt)
 	result.ModifiedAt, _ = time.Parse(configs.DATEFORMAT, modifiedAt)
+
+	fieldDefRepo := customfielddefinitionrepository.NewCustomFieldDefinitionRepository()
+	fieldDefs, err := fieldDefRepo.GetByCatalogue(ctx, code)
+	if err != nil {
+		return result, err
+	}
+
+	result.CustomFieldDefinitions = fieldDefs
 
 	return result, nil
 }
