@@ -25,6 +25,8 @@ func TestCatalogue(t *testing.T) {
 
 	t.Run("Update catalogue", updateCatalogue)
 
+	t.Run("Update catalogue with adding custom field definition", updateCatalogueWithAddingFieldDef)
+
 	t.Run("Delete catalogue", deleteCatalogue)
 }
 
@@ -180,8 +182,8 @@ func createCatalogue(t *testing.T) {
 func createCatalogueWithoutFieldDef(t *testing.T) {
 	dataInput := map[string]interface{}{
 		"code":              "CLG_TEST_4",
-		"description":       "Catalogue Test",
-		"details":           "Catalogue Test",
+		"description":       "Catalogue Test 4",
+		"details":           "Catalogue Test 4",
 		"status":            "A",
 		"created_at":        time.Now(),
 		"modified_at":       time.Now(),
@@ -215,8 +217,8 @@ func createCatalogueWithoutFieldDef(t *testing.T) {
 
 	dataOutput := respData["data"].(map[string]interface{})
 	assert.Equal(t, dataOutput["code"], "CLG_TEST_4")
-	assert.Equal(t, dataOutput["description"], "Catalogue Test")
-	assert.Equal(t, dataOutput["details"], "Catalogue Test")
+	assert.Equal(t, dataOutput["description"], "Catalogue Test 4")
+	assert.Equal(t, dataOutput["details"], "Catalogue Test 4")
 	assert.Equal(t, dataOutput["status"], "A")
 	assert.Equal(t, dataOutput["created_by"], "TESTUSER")
 	assert.Equal(t, dataOutput["modified_by"], "TESTUSER")
@@ -274,6 +276,23 @@ func updateCatalogue(t *testing.T) {
 		"status":      "I",
 		"modified_at": time.Now(),
 		"vers":        1,
+		"field_definitions": []interface{}{
+			map[string]interface{}{
+				"id":      4,
+				"caption": "Field-1 - Updated",
+				"type":    "A",
+			},
+			map[string]interface{}{
+				"id":      5,
+				"caption": "Field-2 - Updated",
+				"type":    "N",
+			},
+			map[string]interface{}{
+				"id":      6,
+				"caption": "Field-3 - Updated",
+				"type":    "D",
+			},
+		},
 	}
 
 	bodyReq, err := json.Marshal(dataInput)
@@ -311,6 +330,80 @@ func updateCatalogue(t *testing.T) {
 	modifiedAt, _ := time.Parse(time.RFC3339, dataOutput["modified_at"].(string))
 
 	assert.Equal(t, modifiedAt.Local().Format(configs.DATEFORMAT), dataInput["modified_at"].(time.Time).Format(configs.DATEFORMAT))
+
+	dataFieldDefs := dataOutput["field_definitions"].([]interface{})
+	assert.Equal(t, len(dataFieldDefs), 3)
+
+	dataFieldDefOutput := dataFieldDefs[0].(map[string]interface{})
+	assert.Equal(t, dataFieldDefOutput["clg_code"], "CLG_TEST")
+	assert.Equal(t, dataFieldDefOutput["caption"], "Field-1 - Updated")
+	assert.Equal(t, dataFieldDefOutput["type"], "A")
+	assert.Equal(t, dataFieldDefOutput["created_by"], "TESTUSER")
+	assert.Equal(t, dataFieldDefOutput["modified_by"], "TESTUSER")
+}
+
+func updateCatalogueWithAddingFieldDef(t *testing.T) {
+	dataInput := map[string]interface{}{
+		"code":        "CLG_TEST",
+		"description": "Catalogue Test - Updated",
+		"details":     "Catalogue Test - Updated",
+		"status":      "I",
+		"modified_at": time.Now(),
+		"vers":        2,
+		"field_definitions": []interface{}{
+			map[string]interface{}{
+				"id":      7,
+				"caption": "Field-4 - Updated",
+				"type":    "A",
+			},
+		},
+	}
+
+	bodyReq, err := json.Marshal(dataInput)
+	assert.NilError(t, err, "Failed to encode body request.")
+
+	req, err := http.NewRequest("PUT", "http://localhost:50051/v1/catalogues/CLG_TEST", bytes.NewBuffer(bodyReq))
+	assert.NilError(t, err, "Failed to create update request.")
+
+	req.Header.Add("Authorization", accessTokenTest)
+
+	client := &http.Client{}
+
+	resp, err := client.Do(req)
+	assert.NilError(t, err, "Failed to update catalogue.")
+	assert.Equal(t, resp.StatusCode, http.StatusAccepted)
+
+	defer resp.Body.Close()
+
+	bodyResp, err := ioutil.ReadAll(resp.Body)
+	assert.NilError(t, err, "Failed to read body response.")
+
+	var respData map[string]interface{}
+	err = json.Unmarshal(bodyResp, &respData)
+	assert.NilError(t, err, "Failed to decode body response.")
+	assert.Equal(t, respData["success"], true)
+
+	dataOutput := respData["data"].(map[string]interface{})
+	assert.Equal(t, dataOutput["code"], "CLG_TEST")
+	assert.Equal(t, dataOutput["description"], "Catalogue Test - Updated")
+	assert.Equal(t, dataOutput["details"], "Catalogue Test - Updated")
+	assert.Equal(t, dataOutput["status"], "I")
+	assert.Equal(t, dataOutput["created_by"], "TESTUSER")
+	assert.Equal(t, dataOutput["modified_by"], "TESTUSER")
+
+	modifiedAt, _ := time.Parse(time.RFC3339, dataOutput["modified_at"].(string))
+
+	assert.Equal(t, modifiedAt.Local().Format(configs.DATEFORMAT), dataInput["modified_at"].(time.Time).Format(configs.DATEFORMAT))
+
+	dataFieldDefs := dataOutput["field_definitions"].([]interface{})
+	assert.Equal(t, len(dataFieldDefs), 4)
+
+	dataFieldDefOutput := dataFieldDefs[3].(map[string]interface{})
+	assert.Equal(t, dataFieldDefOutput["clg_code"], "CLG_TEST")
+	assert.Equal(t, dataFieldDefOutput["caption"], "Field-4 - Updated")
+	assert.Equal(t, dataFieldDefOutput["type"], "A")
+	assert.Equal(t, dataFieldDefOutput["created_by"], "TESTUSER")
+	assert.Equal(t, dataFieldDefOutput["modified_by"], "TESTUSER")
 }
 
 func deleteCatalogue(t *testing.T) {

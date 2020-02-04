@@ -23,6 +23,8 @@ func TestProduct(t *testing.T) {
 
 	t.Run("Create product without default unit of measure", createProductWithoutDefaultUom)
 
+	t.Run("Create product without unit of measure", createProductWithoutUom)
+
 	t.Run("Update product with invalid version", updateProductWithInvalidVersion)
 
 	t.Run("Update product", updateProduct)
@@ -256,6 +258,44 @@ func createProductWithoutDefaultUom(t *testing.T) {
 				"vers":        1,
 			},
 		},
+	}
+
+	bodyReq, err := json.Marshal(dataInput)
+	assert.NilError(t, err, "Failed to encode body request.")
+
+	req, err := http.NewRequest("POST", "http://localhost:50051/v1/products", bytes.NewBuffer(bodyReq))
+	assert.NilError(t, err, "Failed to create request.")
+
+	req.Header.Add("Authorization", accessTokenTest)
+
+	client := &http.Client{}
+
+	resp, err := client.Do(req)
+	assert.NilError(t, err, "Failed to create product.")
+	assert.Equal(t, resp.StatusCode, http.StatusBadRequest)
+
+	defer resp.Body.Close()
+
+	bodyResp, err := ioutil.ReadAll(resp.Body)
+	assert.NilError(t, err, "Failed to read body response.")
+
+	var respData map[string]interface{}
+	err = json.Unmarshal(bodyResp, &respData)
+	assert.NilError(t, err, "Failed to decode body response.")
+	assert.Equal(t, respData["success"], false)
+}
+
+func createProductWithoutUom(t *testing.T) {
+	dataInput := map[string]interface{}{
+		"clg_code":    "CLG_TEST_2",
+		"code":        "Q-0001",
+		"description": "Hardisk",
+		"details":     "Hardisk",
+		"status":      "A",
+		"created_at":  time.Now(),
+		"modified_at": time.Now(),
+		"vers":        1,
+		"uoms":        []interface{}{},
 	}
 
 	bodyReq, err := json.Marshal(dataInput)

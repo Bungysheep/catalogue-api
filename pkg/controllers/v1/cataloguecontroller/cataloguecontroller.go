@@ -182,6 +182,59 @@ func (clgCtl *CatalogueController) Update(w http.ResponseWriter, r *http.Request
 		return
 	}
 
+	if result != nil {
+		fieldDefRepo := customfielddefinitionrepository.NewCustomFieldDefinitionRepository()
+		for _, updFieldDef := range updClg.GetAllCustomFieldDefinitions() {
+			oldFieldDef := oldClg.GetCustomFieldDefinition(updFieldDef.GetID())
+
+			if oldFieldDef == nil {
+				updFieldDef.CatalogueCode = oldClg.GetCode()
+				updFieldDef.CreatedBy = oldClg.GetCreatedBy()
+				updFieldDef.CreatedAt = oldClg.GetCreatedAt()
+				updFieldDef.ModifiedBy = oldClg.GetModifiedBy()
+				updFieldDef.ModifiedAt = oldClg.GetModifiedAt()
+				updFieldDef.Vers = 1
+
+				lastUomID, err := fieldDefRepo.Create(r.Context(), updFieldDef)
+				if err != nil {
+					clgCtl.WriteResponse(w, http.StatusInternalServerError, false, nil, err.Error())
+					return
+				}
+
+				if lastUomID == 0 {
+					clgCtl.WriteResponse(w, http.StatusNotFound, false, nil, "Custom Field Definition was not created.")
+					return
+				}
+			} else {
+				if !updFieldDef.IsEqual(oldFieldDef) {
+					oldFieldDef.Caption = updFieldDef.GetCaption()
+					oldFieldDef.Type = updFieldDef.GetType()
+					oldFieldDef.ModifiedBy = oldClg.GetModifiedBy()
+					oldFieldDef.ModifiedAt = oldClg.GetModifiedAt()
+
+					nbrRow, err := fieldDefRepo.Update(r.Context(), oldFieldDef)
+					if err != nil {
+						clgCtl.WriteResponse(w, http.StatusInternalServerError, false, nil, err.Error())
+						return
+					}
+
+					if nbrRow == 0 {
+						clgCtl.WriteResponse(w, http.StatusNotFound, false, nil, "Custom Field Definition was not created.")
+						return
+					}
+				}
+			}
+		}
+
+		fieldDefs, err := fieldDefRepo.GetByCatalogue(r.Context(), oldClg.GetCode())
+		if err != nil {
+			clgCtl.WriteResponse(w, http.StatusInternalServerError, false, nil, err.Error())
+			return
+		}
+
+		result.CustomFieldDefinitions = fieldDefs
+	}
+
 	clgCtl.WriteResponse(w, http.StatusAccepted, true, result, "Catalogue has been updated.")
 }
 
