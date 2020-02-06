@@ -74,11 +74,11 @@ func setupDatabase(ctx context.Context) {
 					('CLG_TEST_2', 'Catalogue Test 2', 'Catalogue Test 2', 'TESTUSER', CURRENT_TIMESTAMP, 'TESTUSER', CURRENT_TIMESTAMP, 1),
 					('CLG_TEST_3', 'Catalogue Test 3', 'Catalogue Test 3', 'TESTUSER', CURRENT_TIMESTAMP, 'TESTUSER', CURRENT_TIMESTAMP, 1)`)
 
-	// Seed catalogues
-	_, err = tx.Exec(`INSERT INTO custom_field_definitions (clg_code, caption, type, created_by, created_at, modified_by, modified_at, vers) VALUES 
-					('CLG_TEST_1', 'Field-1', 'A', 'TESTUSER', CURRENT_TIMESTAMP, 'TESTUSER', CURRENT_TIMESTAMP, 1),
-					('CLG_TEST_1', 'Field-2', 'N', 'TESTUSER', CURRENT_TIMESTAMP, 'TESTUSER', CURRENT_TIMESTAMP, 1),
-					('CLG_TEST_1', 'Field-3', 'D', 'TESTUSER', CURRENT_TIMESTAMP, 'TESTUSER', CURRENT_TIMESTAMP, 1)`)
+	// Seed custom field definitions
+	_, err = tx.Exec(`INSERT INTO custom_field_definitions (clg_code, caption, type, mandatory, created_by, created_at, modified_by, modified_at, vers) VALUES 
+					('CLG_TEST_1', 'Field-1', 'A', 1, 'TESTUSER', CURRENT_TIMESTAMP, 'TESTUSER', CURRENT_TIMESTAMP, 1),
+					('CLG_TEST_1', 'Field-2', 'N', 0, 'TESTUSER', CURRENT_TIMESTAMP, 'TESTUSER', CURRENT_TIMESTAMP, 1),
+					('CLG_TEST_1', 'Field-3', 'D', 0, 'TESTUSER', CURRENT_TIMESTAMP, 'TESTUSER', CURRENT_TIMESTAMP, 1)`)
 
 	// Seed products
 	_, err = tx.Exec(`INSERT INTO products (clg_code, code, descr, details, created_by, created_at, modified_by, modified_at, vers) VALUES 

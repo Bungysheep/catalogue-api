@@ -101,6 +101,7 @@ func getCatalogue(t *testing.T) {
 	assert.Equal(t, dataFieldDefOutput["clg_code"], "CLG_TEST_1")
 	assert.Equal(t, dataFieldDefOutput["caption"], "Field-1")
 	assert.Equal(t, dataFieldDefOutput["type"], "A")
+	assert.Equal(t, dataFieldDefOutput["mandatory"], true)
 	assert.Equal(t, dataFieldDefOutput["created_by"], "TESTUSER")
 	assert.Equal(t, dataFieldDefOutput["modified_by"], "TESTUSER")
 }
@@ -116,16 +117,19 @@ func createCatalogue(t *testing.T) {
 		"vers":        1,
 		"field_definitions": []interface{}{
 			map[string]interface{}{
-				"caption": "Field-1",
-				"type":    "A",
+				"caption":   "Field-1",
+				"type":      "A",
+				"mandatory": true,
 			},
 			map[string]interface{}{
-				"caption": "Field-2",
-				"type":    "N",
+				"caption":   "Field-2",
+				"type":      "N",
+				"mandatory": false,
 			},
 			map[string]interface{}{
-				"caption": "Field-3",
-				"type":    "D",
+				"caption":   "Field-3",
+				"type":      "D",
+				"mandatory": false,
 			},
 		},
 	}
@@ -175,6 +179,7 @@ func createCatalogue(t *testing.T) {
 	assert.Equal(t, dataFieldDefOutput["clg_code"], "CLG_TEST")
 	assert.Equal(t, dataFieldDefOutput["caption"], "Field-1")
 	assert.Equal(t, dataFieldDefOutput["type"], "A")
+	assert.Equal(t, dataFieldDefOutput["mandatory"], true)
 	assert.Equal(t, dataFieldDefOutput["created_by"], "TESTUSER")
 	assert.Equal(t, dataFieldDefOutput["modified_by"], "TESTUSER")
 }
@@ -278,19 +283,22 @@ func updateCatalogue(t *testing.T) {
 		"vers":        1,
 		"field_definitions": []interface{}{
 			map[string]interface{}{
-				"id":      4,
-				"caption": "Field-1 - Updated",
-				"type":    "A",
+				"id":        4,
+				"caption":   "Field-1 - Updated",
+				"type":      "A",
+				"mandatory": true,
 			},
 			map[string]interface{}{
-				"id":      5,
-				"caption": "Field-2 - Updated",
-				"type":    "N",
+				"id":        5,
+				"caption":   "Field-2 - Updated",
+				"type":      "N",
+				"mandatory": false,
 			},
 			map[string]interface{}{
-				"id":      6,
-				"caption": "Field-3 - Updated",
-				"type":    "D",
+				"id":        6,
+				"caption":   "Field-3 - Updated",
+				"type":      "D",
+				"mandatory": false,
 			},
 		},
 	}
@@ -338,6 +346,7 @@ func updateCatalogue(t *testing.T) {
 	assert.Equal(t, dataFieldDefOutput["clg_code"], "CLG_TEST")
 	assert.Equal(t, dataFieldDefOutput["caption"], "Field-1 - Updated")
 	assert.Equal(t, dataFieldDefOutput["type"], "A")
+	assert.Equal(t, dataFieldDefOutput["mandatory"], true)
 	assert.Equal(t, dataFieldDefOutput["created_by"], "TESTUSER")
 	assert.Equal(t, dataFieldDefOutput["modified_by"], "TESTUSER")
 }
@@ -352,9 +361,10 @@ func updateCatalogueWithAddingFieldDef(t *testing.T) {
 		"vers":        2,
 		"field_definitions": []interface{}{
 			map[string]interface{}{
-				"id":      7,
-				"caption": "Field-4 - Updated",
-				"type":    "A",
+				"id":        7,
+				"caption":   "Field-4 - Updated",
+				"type":      "A",
+				"mandatory": false,
 			},
 		},
 	}
@@ -402,6 +412,7 @@ func updateCatalogueWithAddingFieldDef(t *testing.T) {
 	assert.Equal(t, dataFieldDefOutput["clg_code"], "CLG_TEST")
 	assert.Equal(t, dataFieldDefOutput["caption"], "Field-4 - Updated")
 	assert.Equal(t, dataFieldDefOutput["type"], "A")
+	assert.Equal(t, dataFieldDefOutput["mandatory"], false)
 	assert.Equal(t, dataFieldDefOutput["created_by"], "TESTUSER")
 	assert.Equal(t, dataFieldDefOutput["modified_by"], "TESTUSER")
 }

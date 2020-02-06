@@ -13,6 +13,7 @@ type CustomFieldDefinition struct {
 	CatalogueCode string    `json:"clg_code"`
 	Caption       string    `json:"caption" mandatory:"true" max_length:"32"`
 	Type          string    `json:"type" mandatory:"true" max_length:"1" valid_value:"A,N,D"`
+	Mandatory     bool      `json:"mandatory"`
 	CreatedBy     string    `json:"created_by"`
 	CreatedAt     time.Time `json:"created_at"`
 	ModifiedBy    string    `json:"modified_by"`
@@ -45,6 +46,11 @@ func (cfd *CustomFieldDefinition) GetType() string {
 	return cfd.Type
 }
 
+// GetMandatory - Returns mandatory
+func (cfd *CustomFieldDefinition) GetMandatory() bool {
+	return cfd.Mandatory
+}
+
 // GetCreatedBy - Returns created by
 func (cfd *CustomFieldDefinition) GetCreatedBy() string {
 	return cfd.CreatedBy
@@ -74,7 +80,8 @@ func (cfd *CustomFieldDefinition) GetVers() int64 {
 func (cfd *CustomFieldDefinition) IsEqual(otherFieldDef *CustomFieldDefinition) bool {
 	return cfd.ID == otherFieldDef.GetID() &&
 		cfd.Caption == otherFieldDef.GetCaption() &&
-		cfd.Type == otherFieldDef.GetType()
+		cfd.Type == otherFieldDef.GetType() &&
+		cfd.Mandatory == otherFieldDef.GetMandatory()
 }
 
 // DoValidate - Validate custom field definition

@@ -209,6 +209,7 @@ func (clgCtl *CatalogueController) Update(w http.ResponseWriter, r *http.Request
 				if !updFieldDef.IsEqual(oldFieldDef) {
 					oldFieldDef.Caption = updFieldDef.GetCaption()
 					oldFieldDef.Type = updFieldDef.GetType()
+					oldFieldDef.Mandatory = updFieldDef.GetMandatory()
 					oldFieldDef.ModifiedBy = oldClg.GetModifiedBy()
 					oldFieldDef.ModifiedAt = oldClg.GetModifiedAt()
 

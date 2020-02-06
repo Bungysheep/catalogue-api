@@ -38,7 +38,7 @@ func (fieldDefRepo *customFieldDefinitionRepository) GetByID(ctx context.Context
 	defer conn.Close()
 
 	stmt, err := conn.PrepareContext(ctx,
-		`SELECT id, clg_code, caption, type, created_by, created_at, modified_by, modified_at, vers
+		`SELECT id, clg_code, caption, type, mandatory, created_by, created_at, modified_by, modified_at, vers
 		FROM custom_field_definitions 
 		WHERE id=?`)
 	if err != nil {
@@ -66,6 +66,7 @@ func (fieldDefRepo *customFieldDefinitionRepository) GetByID(ctx context.Context
 		&result.CatalogueCode,
 		&result.Caption,
 		&result.Type,
+		&result.Mandatory,
 		&result.CreatedBy,
 		&createdAt,
 		&result.ModifiedBy,
@@ -90,7 +91,7 @@ func (fieldDefRepo *customFieldDefinitionRepository) GetByCatalogue(ctx context.
 	defer conn.Close()
 
 	stmt, err := conn.PrepareContext(ctx,
-		`SELECT id, clg_code, caption, type, created_by, created_at, modified_by, modified_at, vers
+		`SELECT id, clg_code, caption, type, mandatory, created_by, created_at, modified_by, modified_at, vers
 		FROM custom_field_definitions
 		WHERE clg_code=?`)
 	if err != nil {
@@ -120,6 +121,7 @@ func (fieldDefRepo *customFieldDefinitionRepository) GetByCatalogue(ctx context.
 			&fieldDef.CatalogueCode,
 			&fieldDef.Caption,
 			&fieldDef.Type,
+			&fieldDef.Mandatory,
 			&fieldDef.CreatedBy,
 			&createdAt,
 			&fieldDef.ModifiedBy,
@@ -146,14 +148,14 @@ func (fieldDefRepo *customFieldDefinitionRepository) Create(ctx context.Context,
 
 	stmt, err := conn.PrepareContext(ctx,
 		`INSERT INTO custom_field_definitions 
-			(clg_code, caption, type, created_by, created_at, modified_by, modified_at, vers) 
-		VALUES (?, ?, ?, ?, ?, ?, ?, 1)`)
+			(clg_code, caption, type, mandatory, created_by, created_at, modified_by, modified_at, vers) 
+		VALUES (?, ?, ?, ?, ?, ?, ?, ?, 1)`)
 	if err != nil {
 		return 0, fmt.Errorf("Failed preparing insert custom field definition, error: %v", err)
 	}
 	defer stmt.Close()
 
-	result, err := stmt.ExecContext(ctx, data.GetCatalogueCode(), data.GetCaption(), data.GetType(), data.GetCreatedBy(), data.GetCreatedAt(), data.GetModifiedBy(), data.GetModifiedAt())
+	result, err := stmt.ExecContext(ctx, data.GetCatalogueCode(), data.GetCaption(), data.GetType(), data.GetMandatory(), data.GetCreatedBy(), data.GetCreatedAt(), data.GetModifiedBy(), data.GetModifiedAt())
 	if err != nil {
 		return 0, fmt.Errorf("Failed inserting custom field definition, error: %v", err)
 	}
@@ -169,14 +171,14 @@ func (fieldDefRepo *customFieldDefinitionRepository) Update(ctx context.Context,
 	defer conn.Close()
 
 	stmt, err := conn.PrepareContext(ctx,
-		`UPDATE custom_field_definitions SET caption=?, type=?, modified_by=?, modified_at=?, vers=vers+1 
+		`UPDATE custom_field_definitions SET caption=?, type=?, mandatory=?, modified_by=?, modified_at=?, vers=vers+1 
 		WHERE id=?`)
 	if err != nil {
 		return 0, fmt.Errorf("Failed preparing update custom field definition, error: %v", err)
 	}
 	defer stmt.Close()
 
-	result, err := stmt.ExecContext(ctx, data.GetCaption(), data.GetType(), data.GetModifiedBy(), data.GetModifiedAt(), data.GetID())
+	result, err := stmt.ExecContext(ctx, data.GetCaption(), data.GetType(), data.GetMandatory(), data.GetModifiedBy(), data.GetModifiedAt(), data.GetID())
 	if err != nil {
 		return 0, fmt.Errorf("Failed updating custom field definition, error: %v", err)
 	}
