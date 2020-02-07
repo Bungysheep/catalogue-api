@@ -1,18 +1,22 @@
 package unitofmeasure
 
-import "strings"
+import (
+	"strings"
 
-import "github.com/bungysheep/catalogue-api/pkg/models/v1/basemodel"
+	"github.com/bungysheep/catalogue-api/pkg/commons/changemode"
+	"github.com/bungysheep/catalogue-api/pkg/models/v1/basemodel"
+)
 
 // UnitOfMeasure type
 type UnitOfMeasure struct {
 	basemodel.BaseModel
-	ID          int64   `json:"id"`
-	ProdID      int64   `json:"prod_id"`
-	Code        string  `json:"code" mandatory:"true" max_length:"16"`
-	Description string  `json:"description" mandatory:"true" max_length:"32"`
-	Ratio       float64 `json:"ratio"`
-	Vers        int64   `json:"vers"`
+	ID          int64                 `json:"id"`
+	ProdID      int64                 `json:"prod_id"`
+	Code        string                `json:"code" mandatory:"true" max_length:"16"`
+	Description string                `json:"description" mandatory:"true" max_length:"32"`
+	Ratio       float64               `json:"ratio"`
+	Vers        int64                 `json:"vers"`
+	ChangeMode  changemode.ChangeMode `json:"change_mode"`
 }
 
 // NewUnitOfMeasure - Creates unit of measure
@@ -48,6 +52,11 @@ func (uom *UnitOfMeasure) GetRatio() float64 {
 // GetVers - Returns vers
 func (uom *UnitOfMeasure) GetVers() int64 {
 	return uom.Vers
+}
+
+// GetChangeMode - Returns change mode
+func (uom *UnitOfMeasure) GetChangeMode() changemode.ChangeMode {
+	return uom.ChangeMode
 }
 
 // IsDefault - Whether default uom or not

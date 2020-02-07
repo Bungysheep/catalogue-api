@@ -25,9 +25,7 @@ type CustomFieldDefinition struct {
 
 // NewCustomFieldDefinition - Creates custom field definition
 func NewCustomFieldDefinition() *CustomFieldDefinition {
-	return &CustomFieldDefinition{
-		ChangeMode: changemode.Unchange,
-	}
+	return &CustomFieldDefinition{}
 }
 
 // GetID - Returns custom field definition id

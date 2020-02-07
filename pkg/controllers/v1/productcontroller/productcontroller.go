@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/bungysheep/catalogue-api/pkg/commons/changemode"
 	"github.com/bungysheep/catalogue-api/pkg/commons/contextkey"
 	"github.com/bungysheep/catalogue-api/pkg/commons/status"
 	"github.com/bungysheep/catalogue-api/pkg/controllers/v1/basecontroller"
@@ -105,18 +106,20 @@ func (prodCtl *ProductController) Create(w http.ResponseWriter, r *http.Request)
 	if result != nil {
 		uomRepo := unitofmeasurerepository.NewUnitOfMeasureRepository()
 		for _, newUom := range newProd.GetAllUoms() {
-			newUom.ProdID = lastID
-			newUom.Vers = 1
+			if newUom.GetChangeMode() == changemode.Add {
+				newUom.ProdID = lastID
+				newUom.Vers = 1
 
-			lastUomID, err := uomRepo.Create(r.Context(), newUom)
-			if err != nil {
-				prodCtl.WriteResponse(w, http.StatusInternalServerError, false, nil, err.Error())
-				return
-			}
+				lastUomID, err := uomRepo.Create(r.Context(), newUom)
+				if err != nil {
+					prodCtl.WriteResponse(w, http.StatusInternalServerError, false, nil, err.Error())
+					return
+				}
 
-			if lastUomID == 0 {
-				prodCtl.WriteResponse(w, http.StatusNotFound, false, nil, "Unit of Measure was not created.")
-				return
+				if lastUomID == 0 {
+					prodCtl.WriteResponse(w, http.StatusNotFound, false, nil, "Unit of Measure was not created.")
+					return
+				}
 			}
 		}
 
@@ -192,21 +195,24 @@ func (prodCtl *ProductController) Update(w http.ResponseWriter, r *http.Request)
 		for _, updUom := range updProd.GetAllUoms() {
 			oldUom := oldProd.GetUom(updUom.GetID())
 
-			if oldUom == nil {
-				updUom.ProdID = oldProd.GetID()
-				updUom.Vers = 1
+			if updUom.GetChangeMode() == changemode.Add {
+				if oldUom == nil {
+					updUom.ProdID = oldProd.GetID()
+					updUom.Vers = 1
 
-				lastUomID, err := uomRepo.Create(r.Context(), updUom)
-				if err != nil {
-					prodCtl.WriteResponse(w, http.StatusInternalServerError, false, nil, err.Error())
-					return
+					lastUomID, err := uomRepo.Create(r.Context(), updUom)
+					if err != nil {
+						prodCtl.WriteResponse(w, http.StatusInternalServerError, false, nil, err.Error())
+						return
+					}
+
+					if lastUomID == 0 {
+						prodCtl.WriteResponse(w, http.StatusNotFound, false, nil, "Unit of Measure was not created.")
+						return
+					}
 				}
 
-				if lastUomID == 0 {
-					prodCtl.WriteResponse(w, http.StatusNotFound, false, nil, "Unit of Measure was not created.")
-					return
-				}
-			} else {
+			} else if updUom.GetChangeMode() == changemode.Update {
 				if !updUom.IsEqual(oldUom) {
 					oldUom.Code = updUom.GetCode()
 					oldUom.Description = updUom.GetDescription()
@@ -223,6 +229,19 @@ func (prodCtl *ProductController) Update(w http.ResponseWriter, r *http.Request)
 						return
 					}
 				}
+
+			} else if updUom.GetChangeMode() == changemode.Delete {
+				nbrRow, err := uomRepo.Delete(r.Context(), oldUom.GetID())
+				if err != nil {
+					prodCtl.WriteResponse(w, http.StatusInternalServerError, false, nil, err.Error())
+					return
+				}
+
+				if nbrRow == 0 {
+					prodCtl.WriteResponse(w, http.StatusNotFound, false, nil, "Unit of Measure was not deleted.")
+					return
+				}
+
 			}
 		}
 
