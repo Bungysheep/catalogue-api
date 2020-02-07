@@ -3,27 +3,31 @@ package customfielddefinition
 import (
 	"time"
 
+	"github.com/bungysheep/catalogue-api/pkg/commons/changemode"
 	"github.com/bungysheep/catalogue-api/pkg/models/v1/basemodel"
 )
 
 // CustomFieldDefinition type
 type CustomFieldDefinition struct {
 	basemodel.BaseModel
-	ID            int64     `json:"id"`
-	CatalogueCode string    `json:"clg_code"`
-	Caption       string    `json:"caption" mandatory:"true" max_length:"32"`
-	Type          string    `json:"type" mandatory:"true" max_length:"1" valid_value:"A,N,D"`
-	Mandatory     bool      `json:"mandatory"`
-	CreatedBy     string    `json:"created_by"`
-	CreatedAt     time.Time `json:"created_at"`
-	ModifiedBy    string    `json:"modified_by"`
-	ModifiedAt    time.Time `json:"modified_at"`
-	Vers          int64     `json:"vers"`
+	ID            int64                 `json:"id"`
+	CatalogueCode string                `json:"clg_code"`
+	Caption       string                `json:"caption" mandatory:"true" max_length:"32"`
+	Type          string                `json:"type" mandatory:"true" max_length:"1" valid_value:"A,N,D"`
+	Mandatory     bool                  `json:"mandatory"`
+	CreatedBy     string                `json:"created_by"`
+	CreatedAt     time.Time             `json:"created_at"`
+	ModifiedBy    string                `json:"modified_by"`
+	ModifiedAt    time.Time             `json:"modified_at"`
+	Vers          int64                 `json:"vers"`
+	ChangeMode    changemode.ChangeMode `json:"change_mode"`
 }
 
 // NewCustomFieldDefinition - Creates custom field definition
 func NewCustomFieldDefinition() *CustomFieldDefinition {
-	return &CustomFieldDefinition{}
+	return &CustomFieldDefinition{
+		ChangeMode: changemode.Unchange,
+	}
 }
 
 // GetID - Returns custom field definition id
@@ -74,6 +78,11 @@ func (cfd *CustomFieldDefinition) GetModifiedAt() time.Time {
 // GetVers - Returns vers
 func (cfd *CustomFieldDefinition) GetVers() int64 {
 	return cfd.Vers
+}
+
+// GetChangeMode - Returns change mode
+func (cfd *CustomFieldDefinition) GetChangeMode() changemode.ChangeMode {
+	return cfd.ChangeMode
 }
 
 // IsEqual - Whether equal
