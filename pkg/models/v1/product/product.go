@@ -130,7 +130,7 @@ func (prod *Product) GetNumberOfDefaultUom() int {
 }
 
 // DoValidate - Validate product
-func (prod *Product) DoValidate() (bool, string) {
+func (prod *Product) DoValidate(otherProd *Product) (bool, string) {
 	var ok bool
 	var message string
 
@@ -141,7 +141,15 @@ func (prod *Product) DoValidate() (bool, string) {
 
 	nbrDefaultUom := prod.GetNumberOfDefaultUom()
 	if nbrDefaultUom == 0 {
-		return false, "No default unit of measure."
+		// If existing default uom has been changed to be non-default uom
+		if otherProd == nil || prod.GetUom(otherProd.GetDefaultUom().GetID()) != nil {
+			return false, "No default unit of measure."
+		}
+	} else if nbrDefaultUom == 1 {
+		// If existing default uom is different with updated default uom
+		if otherProd != nil && prod.GetDefaultUom().GetID() != otherProd.GetDefaultUom().GetID() {
+			return false, "Found multiple default unit of measure."
+		}
 	} else if nbrDefaultUom > 1 {
 		return false, "Found multiple default unit of measure."
 	}

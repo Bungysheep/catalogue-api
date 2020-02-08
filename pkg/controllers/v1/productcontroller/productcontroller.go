@@ -74,7 +74,7 @@ func (prodCtl *ProductController) Create(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	valid, message := newProd.DoValidate()
+	valid, message := newProd.DoValidate(nil)
 	if !valid {
 		prodCtl.WriteResponse(w, http.StatusBadRequest, false, nil, message)
 		return
@@ -162,7 +162,7 @@ func (prodCtl *ProductController) Update(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	valid, message := updProd.DoValidate()
+	valid, message := updProd.DoValidate(oldProd)
 	if !valid {
 		prodCtl.WriteResponse(w, http.StatusBadRequest, false, nil, message)
 		return
