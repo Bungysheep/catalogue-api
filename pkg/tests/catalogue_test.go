@@ -487,15 +487,6 @@ func updateCatalogueWithDeletingFieldDef(t *testing.T) {
 
 	dataFieldDefs := dataOutput["field_definitions"].([]interface{})
 	assert.Equal(t, len(dataFieldDefs), 3)
-
-	// dataFieldDefOutput := dataFieldDefs[3].(map[string]interface{})
-	// assert.Equal(t, dataFieldDefOutput["clg_code"], "CLG_TEST")
-	// assert.Equal(t, dataFieldDefOutput["caption"], "Field-4 - Updated")
-	// assert.Equal(t, dataFieldDefOutput["type"], "A")
-	// assert.Equal(t, dataFieldDefOutput["mandatory"], false)
-	// assert.Equal(t, dataFieldDefOutput["created_by"], "TESTUSER")
-	// assert.Equal(t, dataFieldDefOutput["modified_by"], "TESTUSER")
-	// assert.Equal(t, dataFieldDefOutput["change_mode"], float64(0))
 }
 
 func deleteCatalogue(t *testing.T) {

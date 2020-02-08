@@ -5,24 +5,26 @@ import (
 	"time"
 
 	"github.com/bungysheep/catalogue-api/pkg/models/v1/basemodel"
+	"github.com/bungysheep/catalogue-api/pkg/models/v1/productcustomfield"
 	"github.com/bungysheep/catalogue-api/pkg/models/v1/unitofmeasure"
 )
 
 // Product type
 type Product struct {
 	basemodel.BaseModel
-	ID             int64                          `json:"id"`
-	CatalogueCode  string                         `json:"clg_code"`
-	Code           string                         `json:"code"`
-	Description    string                         `json:"description" mandatory:"true" max_length:"32"`
-	Details        string                         `json:"details" max_length:"64"`
-	Status         string                         `json:"status" mandatory:"true" max_length:"1"`
-	CreatedBy      string                         `json:"created_by"`
-	CreatedAt      time.Time                      `json:"created_at"`
-	ModifiedBy     string                         `json:"modified_by"`
-	ModifiedAt     time.Time                      `json:"modified_at"`
-	Vers           int64                          `json:"vers"`
-	UnitOfMeasures []*unitofmeasure.UnitOfMeasure `json:"uoms"`
+	ID             int64                                    `json:"id"`
+	CatalogueCode  string                                   `json:"clg_code"`
+	Code           string                                   `json:"code"`
+	Description    string                                   `json:"description" mandatory:"true" max_length:"32"`
+	Details        string                                   `json:"details" max_length:"64"`
+	Status         string                                   `json:"status" mandatory:"true" max_length:"1"`
+	CreatedBy      string                                   `json:"created_by"`
+	CreatedAt      time.Time                                `json:"created_at"`
+	ModifiedBy     string                                   `json:"modified_by"`
+	ModifiedAt     time.Time                                `json:"modified_at"`
+	Vers           int64                                    `json:"vers"`
+	UnitOfMeasures []*unitofmeasure.UnitOfMeasure           `json:"uoms"`
+	CustomFields   []*productcustomfield.ProductCustomField `json:"custom_fields"`
 }
 
 // NewProduct - Creates product
@@ -101,11 +103,27 @@ func (prod *Product) GetAllUoms() []*unitofmeasure.UnitOfMeasure {
 	return prod.UnitOfMeasures
 }
 
+// GetAllCustomFields - Returns all product custom fields
+func (prod *Product) GetAllCustomFields() []*productcustomfield.ProductCustomField {
+	return prod.CustomFields
+}
+
 // GetUom - Returns uom
 func (prod *Product) GetUom(uomID int64) *unitofmeasure.UnitOfMeasure {
 	for _, uom := range prod.UnitOfMeasures {
 		if uom.GetID() == uomID {
 			return uom
+		}
+	}
+
+	return nil
+}
+
+// GetCustomField - Returns custom field
+func (prod *Product) GetCustomField(fieldID int64) *productcustomfield.ProductCustomField {
+	for _, field := range prod.CustomFields {
+		if field.GetID() == fieldID {
+			return field
 		}
 	}
 

@@ -63,6 +63,7 @@ func setupDatabase(ctx context.Context) {
 	_, err = tx.Exec("TRUNCATE TABLE custom_field_definitions")
 	_, err = tx.Exec("TRUNCATE TABLE products")
 	_, err = tx.Exec("TRUNCATE TABLE product_uoms")
+	_, err = tx.Exec("TRUNCATE TABLE product_custom_fields")
 
 	// Seed users
 	_, err = tx.Exec(`INSERT INTO users (username, name, email, password, status, created_by, created_at, modified_by, modified_at, vers) VALUES 
@@ -94,6 +95,18 @@ func setupDatabase(ctx context.Context) {
 					(2, 'BOX', 'Box', 2, 1),
 					(3, 'EACH', 'Each', 1, 1),
 					(3, 'PACK', 'Pack', 6, 1)`)
+
+	// Seed product uoms
+	_, err = tx.Exec(`INSERT INTO product_custom_fields (prod_id, field_id, alpha_value, numeric_value, date_value) VALUES 
+					(1, 1, 'Field-Prod-1', NULL, NULL),
+					(1, 2, NULL, 10.5, NULL),
+					(1, 3, NULL, NULL, '2020-01-01'),
+					(2, 1, 'Field-Prod-2', NULL, NULL),
+					(2, 2, NULL, 20.5, NULL),
+					(2, 3, NULL, NULL, '2020-02-01'),
+					(3, 1, 'Field-Prod-3', NULL, NULL),
+					(3, 2, NULL, 30.5, NULL),
+					(3, 3, NULL, NULL, '2020-03-01')`)
 
 	if err != nil {
 		tx.Rollback()
