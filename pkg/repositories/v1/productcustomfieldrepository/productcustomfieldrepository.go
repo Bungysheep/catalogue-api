@@ -149,7 +149,7 @@ func (pcfRepo *productCustomFieldRepository) Create(ctx context.Context, data *p
 		return 0, fmt.Errorf("Failed inserting product custom field, error: %v", err)
 	}
 
-	return result.RowsAffected()
+	return result.LastInsertId()
 }
 
 func (pcfRepo *productCustomFieldRepository) Update(ctx context.Context, data *productcustomfieldmodel.ProductCustomField) (int64, error) {
@@ -167,7 +167,7 @@ func (pcfRepo *productCustomFieldRepository) Update(ctx context.Context, data *p
 	}
 	defer stmt.Close()
 
-	result, err := stmt.ExecContext(ctx, data.GetAlphaValue(), data.GetNumericValue(), data.GetDateValue(), data.GetID(), data.GetID())
+	result, err := stmt.ExecContext(ctx, data.GetAlphaValue(), data.GetNumericValue(), data.GetDateValue(), data.GetID())
 	if err != nil {
 		return 0, fmt.Errorf("Failed updating product custom field, error: %v", err)
 	}

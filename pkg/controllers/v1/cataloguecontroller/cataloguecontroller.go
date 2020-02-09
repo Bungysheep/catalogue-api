@@ -225,14 +225,9 @@ func (clgCtl *CatalogueController) Update(w http.ResponseWriter, r *http.Request
 					oldFieldDef.ModifiedBy = oldClg.GetModifiedBy()
 					oldFieldDef.ModifiedAt = oldClg.GetModifiedAt()
 
-					nbrRow, err := fieldDefRepo.Update(r.Context(), oldFieldDef)
+					_, err := fieldDefRepo.Update(r.Context(), oldFieldDef)
 					if err != nil {
 						clgCtl.WriteResponse(w, http.StatusInternalServerError, false, nil, err.Error())
-						return
-					}
-
-					if nbrRow == 0 {
-						clgCtl.WriteResponse(w, http.StatusNotFound, false, nil, "Custom Field Definition was not created.")
 						return
 					}
 				}

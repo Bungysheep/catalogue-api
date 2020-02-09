@@ -257,14 +257,9 @@ func (prodCtl *ProductController) Update(w http.ResponseWriter, r *http.Request)
 					oldUom.Description = updUom.GetDescription()
 					oldUom.Ratio = updUom.GetRatio()
 
-					nbrRow, err := uomRepo.Update(r.Context(), oldUom)
+					_, err := uomRepo.Update(r.Context(), oldUom)
 					if err != nil {
 						prodCtl.WriteResponse(w, http.StatusInternalServerError, false, nil, err.Error())
-						return
-					}
-
-					if nbrRow == 0 {
-						prodCtl.WriteResponse(w, http.StatusNotFound, false, nil, "Unit of Measure was not created.")
 						return
 					}
 				}
@@ -284,12 +279,30 @@ func (prodCtl *ProductController) Update(w http.ResponseWriter, r *http.Request)
 			}
 		}
 
+		fieldRepo := productcustomfieldrepository.NewProductCustomFieldRepository()
+		for _, updfield := range updProd.GetAllCustomFields() {
+			updfield.ProdID = oldProd.GetID()
+
+			_, err := fieldRepo.Update(r.Context(), updfield)
+			if err != nil {
+				prodCtl.WriteResponse(w, http.StatusInternalServerError, false, nil, err.Error())
+				return
+			}
+		}
+
 		uoms, err := uomRepo.GetByProduct(r.Context(), oldProd.GetID())
 		if err != nil {
 			prodCtl.WriteResponse(w, http.StatusInternalServerError, false, nil, err.Error())
 			return
 		}
 		result.UnitOfMeasures = uoms
+
+		fields, err := fieldRepo.GetByProduct(r.Context(), oldProd.GetID())
+		if err != nil {
+			prodCtl.WriteResponse(w, http.StatusInternalServerError, false, nil, err.Error())
+			return
+		}
+		result.CustomFields = fields
 	}
 
 	prodCtl.WriteResponse(w, http.StatusAccepted, true, result, "Product has been updated.")

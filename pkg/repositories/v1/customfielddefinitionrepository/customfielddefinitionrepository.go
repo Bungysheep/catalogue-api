@@ -160,7 +160,7 @@ func (fieldDefRepo *customFieldDefinitionRepository) Create(ctx context.Context,
 		return 0, fmt.Errorf("Failed inserting custom field definition, error: %v", err)
 	}
 
-	return result.RowsAffected()
+	return result.LastInsertId()
 }
 
 func (fieldDefRepo *customFieldDefinitionRepository) Update(ctx context.Context, data *customfielddefinitionmodel.CustomFieldDefinition) (int64, error) {

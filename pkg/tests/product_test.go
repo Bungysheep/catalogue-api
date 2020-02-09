@@ -446,16 +446,19 @@ func updateProductWithInvalidVersion(t *testing.T) {
 		},
 		"custom_fields": []interface{}{
 			map[string]interface{}{
+				"id":          10,
 				"field_id":    4,
-				"alpha_value": "Custom Field",
+				"alpha_value": "Custom Field - Updated",
 			},
 			map[string]interface{}{
+				"id":            11,
 				"field_id":      5,
-				"numeric_value": 10.5,
+				"numeric_value": 20.5,
 			},
 			map[string]interface{}{
+				"id":         12,
 				"field_id":   6,
-				"date_value": time.Now(),
+				"date_value": time.Now().AddDate(0, 0, 3),
 			},
 		},
 	}
@@ -514,16 +517,19 @@ func updateProduct(t *testing.T) {
 		},
 		"custom_fields": []interface{}{
 			map[string]interface{}{
+				"id":          10,
 				"field_id":    4,
-				"alpha_value": "Custom Field",
+				"alpha_value": "Custom Field - Updated",
 			},
 			map[string]interface{}{
+				"id":            11,
 				"field_id":      5,
-				"numeric_value": 10.5,
+				"numeric_value": 20.5,
 			},
 			map[string]interface{}{
+				"id":         12,
 				"field_id":   6,
-				"date_value": time.Now(),
+				"date_value": time.Now().AddDate(0, 0, 3),
 			},
 		},
 	}
@@ -580,7 +586,7 @@ func updateProduct(t *testing.T) {
 
 	dataFieldOutput := dataFields[0].(map[string]interface{})
 	assert.Equal(t, dataFieldOutput["prod_id"], float64(4))
-	assert.Equal(t, dataFieldOutput["alpha_value"], "Custom Field")
+	assert.Equal(t, dataFieldOutput["alpha_value"], "Custom Field - Updated")
 	assert.Equal(t, dataFieldOutput["numeric_value"], float64(0))
 
 	dateValue, _ := time.Parse(time.RFC3339, dataFieldOutput["date_value"].(string))
@@ -609,16 +615,19 @@ func updateProductWithAddingUom(t *testing.T) {
 		},
 		"custom_fields": []interface{}{
 			map[string]interface{}{
+				"id":          10,
 				"field_id":    4,
-				"alpha_value": "Custom Field",
+				"alpha_value": "Custom Field - Updated",
 			},
 			map[string]interface{}{
+				"id":            11,
 				"field_id":      5,
-				"numeric_value": 10.5,
+				"numeric_value": 20.5,
 			},
 			map[string]interface{}{
+				"id":         12,
 				"field_id":   6,
-				"date_value": time.Now(),
+				"date_value": time.Now().AddDate(0, 0, 3),
 			},
 		},
 	}
@@ -675,7 +684,7 @@ func updateProductWithAddingUom(t *testing.T) {
 
 	dataFieldOutput := dataFields[0].(map[string]interface{})
 	assert.Equal(t, dataFieldOutput["prod_id"], float64(4))
-	assert.Equal(t, dataFieldOutput["alpha_value"], "Custom Field")
+	assert.Equal(t, dataFieldOutput["alpha_value"], "Custom Field - Updated")
 	assert.Equal(t, dataFieldOutput["numeric_value"], float64(0))
 
 	dateValue, _ := time.Parse(time.RFC3339, dataFieldOutput["date_value"].(string))
@@ -704,16 +713,19 @@ func updateProductWithDeletingUom(t *testing.T) {
 		},
 		"custom_fields": []interface{}{
 			map[string]interface{}{
+				"id":          10,
 				"field_id":    4,
-				"alpha_value": "Custom Field",
+				"alpha_value": "Custom Field - Updated",
 			},
 			map[string]interface{}{
+				"id":            11,
 				"field_id":      5,
-				"numeric_value": 10.5,
+				"numeric_value": 20.5,
 			},
 			map[string]interface{}{
+				"id":         12,
 				"field_id":   6,
-				"date_value": time.Now(),
+				"date_value": time.Now().AddDate(0, 0, 3),
 			},
 		},
 	}
@@ -770,7 +782,7 @@ func updateProductWithDeletingUom(t *testing.T) {
 
 	dataFieldOutput := dataFields[0].(map[string]interface{})
 	assert.Equal(t, dataFieldOutput["prod_id"], float64(4))
-	assert.Equal(t, dataFieldOutput["alpha_value"], "Custom Field")
+	assert.Equal(t, dataFieldOutput["alpha_value"], "Custom Field - Updated")
 	assert.Equal(t, dataFieldOutput["numeric_value"], float64(0))
 
 	dateValue, _ := time.Parse(time.RFC3339, dataFieldOutput["date_value"].(string))
@@ -807,16 +819,19 @@ func updateProductWithAddingAndUpdatingUom(t *testing.T) {
 		},
 		"custom_fields": []interface{}{
 			map[string]interface{}{
+				"id":          10,
 				"field_id":    4,
-				"alpha_value": "Custom Field",
+				"alpha_value": "Custom Field - Updated",
 			},
 			map[string]interface{}{
+				"id":            11,
 				"field_id":      5,
-				"numeric_value": 10.5,
+				"numeric_value": 20.5,
 			},
 			map[string]interface{}{
+				"id":         12,
 				"field_id":   6,
-				"date_value": time.Now(),
+				"date_value": time.Now().AddDate(0, 0, 3),
 			},
 		},
 	}
@@ -873,7 +888,7 @@ func updateProductWithAddingAndUpdatingUom(t *testing.T) {
 
 	dataFieldOutput := dataFields[0].(map[string]interface{})
 	assert.Equal(t, dataFieldOutput["prod_id"], float64(4))
-	assert.Equal(t, dataFieldOutput["alpha_value"], "Custom Field")
+	assert.Equal(t, dataFieldOutput["alpha_value"], "Custom Field - Updated")
 	assert.Equal(t, dataFieldOutput["numeric_value"], float64(0))
 
 	dateValue, _ := time.Parse(time.RFC3339, dataFieldOutput["date_value"].(string))
@@ -910,16 +925,19 @@ func updateProductWithDeletingAndUpdatingUom(t *testing.T) {
 		},
 		"custom_fields": []interface{}{
 			map[string]interface{}{
+				"id":          10,
 				"field_id":    4,
-				"alpha_value": "Custom Field",
+				"alpha_value": "Custom Field - Updated",
 			},
 			map[string]interface{}{
+				"id":            11,
 				"field_id":      5,
-				"numeric_value": 10.5,
+				"numeric_value": 20.5,
 			},
 			map[string]interface{}{
+				"id":         12,
 				"field_id":   6,
-				"date_value": time.Now(),
+				"date_value": time.Now().AddDate(0, 0, 3),
 			},
 		},
 	}
@@ -976,7 +994,7 @@ func updateProductWithDeletingAndUpdatingUom(t *testing.T) {
 
 	dataFieldOutput := dataFields[0].(map[string]interface{})
 	assert.Equal(t, dataFieldOutput["prod_id"], float64(4))
-	assert.Equal(t, dataFieldOutput["alpha_value"], "Custom Field")
+	assert.Equal(t, dataFieldOutput["alpha_value"], "Custom Field - Updated")
 	assert.Equal(t, dataFieldOutput["numeric_value"], float64(0))
 
 	dateValue, _ := time.Parse(time.RFC3339, dataFieldOutput["date_value"].(string))
