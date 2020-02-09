@@ -25,6 +25,10 @@ func TestProduct(t *testing.T) {
 
 	t.Run("Create product without unit of measure", createProductWithoutUom)
 
+	t.Run("Create product without mandatory custom field", createProductWithoutMandatoryCustomField)
+
+	t.Run("Create product with invalid custom field definition", createProductWithInvalidFieldDefinition)
+
 	t.Run("Update product with invalid version", updateProductWithInvalidVersion)
 
 	t.Run("Update product", updateProduct)
@@ -387,6 +391,140 @@ func createProductWithoutUom(t *testing.T) {
 			},
 			map[string]interface{}{
 				"field_id":   6,
+				"date_value": time.Now(),
+			},
+		},
+	}
+
+	bodyReq, err := json.Marshal(dataInput)
+	assert.NilError(t, err, "Failed to encode body request.")
+
+	req, err := http.NewRequest("POST", "http://localhost:50051/v1/products", bytes.NewBuffer(bodyReq))
+	assert.NilError(t, err, "Failed to create request.")
+
+	req.Header.Add("Authorization", accessTokenTest)
+
+	client := &http.Client{}
+
+	resp, err := client.Do(req)
+	assert.NilError(t, err, "Failed to create product.")
+	assert.Equal(t, resp.StatusCode, http.StatusBadRequest)
+
+	defer resp.Body.Close()
+
+	bodyResp, err := ioutil.ReadAll(resp.Body)
+	assert.NilError(t, err, "Failed to read body response.")
+
+	var respData map[string]interface{}
+	err = json.Unmarshal(bodyResp, &respData)
+	assert.NilError(t, err, "Failed to decode body response.")
+	assert.Equal(t, respData["success"], false)
+}
+
+func createProductWithoutMandatoryCustomField(t *testing.T) {
+	dataInput := map[string]interface{}{
+		"clg_code":    "CLG_TEST_2",
+		"code":        "Q-0001",
+		"description": "Hardisk",
+		"details":     "Hardisk",
+		"status":      "A",
+		"created_at":  time.Now(),
+		"modified_at": time.Now(),
+		"vers":        1,
+		"uoms": []interface{}{
+			map[string]interface{}{
+				"code":        "EACH",
+				"description": "Each",
+				"ratio":       1,
+				"vers":        1,
+				"change_mode": 1,
+			},
+			map[string]interface{}{
+				"code":        "BOX",
+				"description": "Box",
+				"ratio":       2,
+				"vers":        1,
+				"change_mode": 1,
+			},
+		},
+		"custom_fields": []interface{}{
+			map[string]interface{}{
+				"field_id":    4,
+				"alpha_value": "",
+			},
+			map[string]interface{}{
+				"field_id":      5,
+				"numeric_value": 0,
+			},
+			map[string]interface{}{
+				"field_id":   6,
+				"date_value": time.Now(),
+			},
+		},
+	}
+
+	bodyReq, err := json.Marshal(dataInput)
+	assert.NilError(t, err, "Failed to encode body request.")
+
+	req, err := http.NewRequest("POST", "http://localhost:50051/v1/products", bytes.NewBuffer(bodyReq))
+	assert.NilError(t, err, "Failed to create request.")
+
+	req.Header.Add("Authorization", accessTokenTest)
+
+	client := &http.Client{}
+
+	resp, err := client.Do(req)
+	assert.NilError(t, err, "Failed to create product.")
+	assert.Equal(t, resp.StatusCode, http.StatusBadRequest)
+
+	defer resp.Body.Close()
+
+	bodyResp, err := ioutil.ReadAll(resp.Body)
+	assert.NilError(t, err, "Failed to read body response.")
+
+	var respData map[string]interface{}
+	err = json.Unmarshal(bodyResp, &respData)
+	assert.NilError(t, err, "Failed to decode body response.")
+	assert.Equal(t, respData["success"], false)
+}
+
+func createProductWithInvalidFieldDefinition(t *testing.T) {
+	dataInput := map[string]interface{}{
+		"clg_code":    "CLG_TEST_2",
+		"code":        "Q-0001",
+		"description": "Hardisk",
+		"details":     "Hardisk",
+		"status":      "A",
+		"created_at":  time.Now(),
+		"modified_at": time.Now(),
+		"vers":        1,
+		"uoms": []interface{}{
+			map[string]interface{}{
+				"code":        "EACH",
+				"description": "Each",
+				"ratio":       1,
+				"vers":        1,
+				"change_mode": 1,
+			},
+			map[string]interface{}{
+				"code":        "BOX",
+				"description": "Box",
+				"ratio":       2,
+				"vers":        1,
+				"change_mode": 1,
+			},
+		},
+		"custom_fields": []interface{}{
+			map[string]interface{}{
+				"field_id":    7,
+				"alpha_value": "Custom Field",
+			},
+			map[string]interface{}{
+				"field_id":      8,
+				"numeric_value": 10.5,
+			},
+			map[string]interface{}{
+				"field_id":   9,
 				"date_value": time.Now(),
 			},
 		},

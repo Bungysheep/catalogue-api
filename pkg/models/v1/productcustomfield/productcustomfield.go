@@ -60,6 +60,10 @@ func (pcf *ProductCustomField) GetDateValue() time.Time {
 func (pcf *ProductCustomField) DoValidate(fieldDef *customfielddefinition.CustomFieldDefinition) (bool, string) {
 	defaultDate, _ := time.Parse(configs.DATEFORMAT, configs.DEFAULTDATE)
 
+	if fieldDef == nil {
+		return false, fmt.Sprintf("Custom Field '%d' has invalid definition.", pcf.GetFieldID())
+	}
+
 	switch fieldDef.GetType() {
 	case definitiontype.Alphanumeric.String():
 		pcf.NumericValue = 0
@@ -80,6 +84,11 @@ func (pcf *ProductCustomField) DoValidate(fieldDef *customfielddefinition.Custom
 	case definitiontype.Date.String():
 		pcf.AlphaValue = ""
 		pcf.NumericValue = 0
+
+		if fieldDef.GetMandatory() && pcf.GetDateValue() == defaultDate {
+			return false, fmt.Sprintf("Custom Field '%d' must be specified.", pcf.GetFieldID())
+		}
+
 	}
 
 	return pcf.DoValidateBase(*pcf)
