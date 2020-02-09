@@ -79,7 +79,10 @@ func setupDatabase(ctx context.Context) {
 	_, err = tx.Exec(`INSERT INTO custom_field_definitions (clg_code, caption, type, mandatory, created_by, created_at, modified_by, modified_at, vers) VALUES 
 					('CLG_TEST_1', 'Field-1', 'A', 1, 'TESTUSER', CURRENT_TIMESTAMP, 'TESTUSER', CURRENT_TIMESTAMP, 1),
 					('CLG_TEST_1', 'Field-2', 'N', 0, 'TESTUSER', CURRENT_TIMESTAMP, 'TESTUSER', CURRENT_TIMESTAMP, 1),
-					('CLG_TEST_1', 'Field-3', 'D', 0, 'TESTUSER', CURRENT_TIMESTAMP, 'TESTUSER', CURRENT_TIMESTAMP, 1)`)
+					('CLG_TEST_1', 'Field-3', 'D', 0, 'TESTUSER', CURRENT_TIMESTAMP, 'TESTUSER', CURRENT_TIMESTAMP, 1),
+					('CLG_TEST_2', 'Field-1', 'A', 1, 'TESTUSER', CURRENT_TIMESTAMP, 'TESTUSER', CURRENT_TIMESTAMP, 1),
+					('CLG_TEST_2', 'Field-2', 'N', 0, 'TESTUSER', CURRENT_TIMESTAMP, 'TESTUSER', CURRENT_TIMESTAMP, 1),
+					('CLG_TEST_2', 'Field-3', 'D', 0, 'TESTUSER', CURRENT_TIMESTAMP, 'TESTUSER', CURRENT_TIMESTAMP, 1)`)
 
 	// Seed products
 	_, err = tx.Exec(`INSERT INTO products (clg_code, code, descr, details, created_by, created_at, modified_by, modified_at, vers) VALUES 
@@ -96,17 +99,17 @@ func setupDatabase(ctx context.Context) {
 					(3, 'EACH', 'Each', 1, 1),
 					(3, 'PACK', 'Pack', 6, 1)`)
 
-	// Seed product uoms
+	// Seed product custom fields
 	_, err = tx.Exec(`INSERT INTO product_custom_fields (prod_id, field_id, alpha_value, numeric_value, date_value) VALUES 
-					(1, 1, 'Field-Prod-1', NULL, NULL),
-					(1, 2, NULL, 10.5, NULL),
-					(1, 3, NULL, NULL, '2020-01-01'),
-					(2, 1, 'Field-Prod-2', NULL, NULL),
-					(2, 2, NULL, 20.5, NULL),
-					(2, 3, NULL, NULL, '2020-02-01'),
-					(3, 1, 'Field-Prod-3', NULL, NULL),
-					(3, 2, NULL, 30.5, NULL),
-					(3, 3, NULL, NULL, '2020-03-01')`)
+					(1, 1, 'Field-Prod-1', DEFAULT, DEFAULT),
+					(1, 2, DEFAULT, 10.5, DEFAULT),
+					(1, 3, DEFAULT, DEFAULT, '2020-01-01'),
+					(2, 1, 'Field-Prod-2', DEFAULT, DEFAULT),
+					(2, 2, DEFAULT, 20.5, DEFAULT),
+					(2, 3, DEFAULT, DEFAULT, '2020-02-01'),
+					(3, 1, 'Field-Prod-3', DEFAULT, DEFAULT),
+					(3, 2, DEFAULT, 30.5, DEFAULT),
+					(3, 3, DEFAULT, DEFAULT, '2020-03-01')`)
 
 	if err != nil {
 		tx.Rollback()

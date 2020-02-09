@@ -1,9 +1,13 @@
 package productcustomfield
 
 import (
+	"fmt"
 	"time"
 
+	"github.com/bungysheep/catalogue-api/pkg/commons/definitiontype"
+	"github.com/bungysheep/catalogue-api/pkg/configs"
 	"github.com/bungysheep/catalogue-api/pkg/models/v1/basemodel"
+	"github.com/bungysheep/catalogue-api/pkg/models/v1/customfielddefinition"
 )
 
 // ProductCustomField type
@@ -12,7 +16,7 @@ type ProductCustomField struct {
 	ID           int64     `json:"id"`
 	ProdID       int64     `json:"prod_id"`
 	FieldID      int64     `json:"field_id"`
-	AlphaValue   string    `json:"alpha_value" max_length:"16"`
+	AlphaValue   string    `json:"alpha_value" max_length:"64"`
 	NumericValue float64   `json:"numeric_value"`
 	DateValue    time.Time `json:"date_value"`
 }
@@ -50,4 +54,33 @@ func (pcf *ProductCustomField) GetNumericValue() float64 {
 // GetDateValue - Returns date value
 func (pcf *ProductCustomField) GetDateValue() time.Time {
 	return pcf.DateValue
+}
+
+// DoValidate - Validate product custom field
+func (pcf *ProductCustomField) DoValidate(fieldDef *customfielddefinition.CustomFieldDefinition) (bool, string) {
+	defaultDate, _ := time.Parse(configs.DATEFORMAT, configs.DEFAULTDATE)
+
+	switch fieldDef.GetType() {
+	case definitiontype.Alphanumeric.String():
+		pcf.NumericValue = 0
+		pcf.DateValue = defaultDate
+
+		if fieldDef.GetMandatory() && pcf.GetAlphaValue() == "" {
+			return false, fmt.Sprintf("Custom Field '%d' must be specified.", pcf.GetFieldID())
+		}
+
+	case definitiontype.Numeric.String():
+		pcf.AlphaValue = ""
+		pcf.DateValue = defaultDate
+
+		if fieldDef.GetMandatory() && pcf.GetNumericValue() == 0 {
+			return false, fmt.Sprintf("Custom Field '%d' must be specified.", pcf.GetFieldID())
+		}
+
+	case definitiontype.Date.String():
+		pcf.AlphaValue = ""
+		pcf.NumericValue = 0
+	}
+
+	return pcf.DoValidateBase(*pcf)
 }

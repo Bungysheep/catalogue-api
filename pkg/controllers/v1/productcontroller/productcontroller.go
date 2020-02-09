@@ -12,6 +12,8 @@ import (
 	"github.com/bungysheep/catalogue-api/pkg/controllers/v1/basecontroller"
 	productmodel "github.com/bungysheep/catalogue-api/pkg/models/v1/product"
 	"github.com/bungysheep/catalogue-api/pkg/models/v1/signinclaimresource"
+	"github.com/bungysheep/catalogue-api/pkg/repositories/v1/cataloguerepository"
+	"github.com/bungysheep/catalogue-api/pkg/repositories/v1/productcustomfieldrepository"
 	"github.com/bungysheep/catalogue-api/pkg/repositories/v1/productrepository"
 	"github.com/bungysheep/catalogue-api/pkg/repositories/v1/unitofmeasurerepository"
 	"github.com/gorilla/mux"
@@ -74,7 +76,14 @@ func (prodCtl *ProductController) Create(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	valid, message := newProd.DoValidate(nil)
+	clgRepo := cataloguerepository.NewCatalogueRepository()
+	clg, err := clgRepo.GetByID(r.Context(), newProd.GetCatalogueCode())
+	if err != nil {
+		prodCtl.WriteResponse(w, http.StatusBadRequest, false, nil, "Invalid catalogue code.")
+		return
+	}
+
+	valid, message := newProd.DoValidate(nil, clg)
 	if !valid {
 		prodCtl.WriteResponse(w, http.StatusBadRequest, false, nil, message)
 		return
@@ -123,12 +132,35 @@ func (prodCtl *ProductController) Create(w http.ResponseWriter, r *http.Request)
 			}
 		}
 
+		fieldRepo := productcustomfieldrepository.NewProductCustomFieldRepository()
+		for _, newfield := range newProd.GetAllCustomFields() {
+			newfield.ProdID = lastID
+
+			lastFieldID, err := fieldRepo.Create(r.Context(), newfield)
+			if err != nil {
+				prodCtl.WriteResponse(w, http.StatusInternalServerError, false, nil, err.Error())
+				return
+			}
+
+			if lastFieldID == 0 {
+				prodCtl.WriteResponse(w, http.StatusNotFound, false, nil, "Custom Field was not created.")
+				return
+			}
+		}
+
 		uoms, err := uomRepo.GetByProduct(r.Context(), lastID)
 		if err != nil {
 			prodCtl.WriteResponse(w, http.StatusInternalServerError, false, nil, err.Error())
 			return
 		}
 		result.UnitOfMeasures = uoms
+
+		fields, err := fieldRepo.GetByProduct(r.Context(), lastID)
+		if err != nil {
+			prodCtl.WriteResponse(w, http.StatusInternalServerError, false, nil, err.Error())
+			return
+		}
+		result.CustomFields = fields
 	}
 
 	prodCtl.WriteResponse(w, http.StatusAccepted, true, result, "Product has been created.")
@@ -162,7 +194,14 @@ func (prodCtl *ProductController) Update(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	valid, message := updProd.DoValidate(oldProd)
+	clgRepo := cataloguerepository.NewCatalogueRepository()
+	clg, err := clgRepo.GetByID(r.Context(), oldProd.GetCatalogueCode())
+	if err != nil {
+		prodCtl.WriteResponse(w, http.StatusBadRequest, false, nil, "Invalid catalogue code.")
+		return
+	}
+
+	valid, message := updProd.DoValidate(oldProd, clg)
 	if !valid {
 		prodCtl.WriteResponse(w, http.StatusBadRequest, false, nil, message)
 		return
@@ -278,6 +317,14 @@ func (prodCtl *ProductController) Delete(w http.ResponseWriter, r *http.Request)
 	// Also delete all related unit of measures
 	uomRepo := unitofmeasurerepository.NewUnitOfMeasureRepository()
 	err = uomRepo.DeleteByProduct(r.Context(), id)
+	if err != nil {
+		prodCtl.WriteResponse(w, http.StatusInternalServerError, false, nil, err.Error())
+		return
+	}
+
+	// Also delete all related custom fields
+	fieldRepo := productcustomfieldrepository.NewProductCustomFieldRepository()
+	err = fieldRepo.DeleteByProduct(r.Context(), id)
 	if err != nil {
 		prodCtl.WriteResponse(w, http.StatusInternalServerError, false, nil, err.Error())
 		return

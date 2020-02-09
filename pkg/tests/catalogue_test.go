@@ -290,21 +290,21 @@ func updateCatalogue(t *testing.T) {
 		"vers":        1,
 		"field_definitions": []interface{}{
 			map[string]interface{}{
-				"id":          4,
+				"id":          7,
 				"caption":     "Field-1 - Updated",
 				"type":        "A",
 				"mandatory":   true,
 				"change_mode": 2,
 			},
 			map[string]interface{}{
-				"id":          5,
+				"id":          8,
 				"caption":     "Field-2 - Updated",
 				"type":        "N",
 				"mandatory":   false,
 				"change_mode": 2,
 			},
 			map[string]interface{}{
-				"id":          6,
+				"id":          9,
 				"caption":     "Field-3 - Updated",
 				"type":        "D",
 				"mandatory":   false,
@@ -372,7 +372,7 @@ func updateCatalogueWithAddingFieldDef(t *testing.T) {
 		"vers":        2,
 		"field_definitions": []interface{}{
 			map[string]interface{}{
-				"id":          7,
+				"id":          10,
 				"caption":     "Field-4 - Updated",
 				"type":        "A",
 				"mandatory":   false,
@@ -440,7 +440,7 @@ func updateCatalogueWithDeletingFieldDef(t *testing.T) {
 		"vers":        3,
 		"field_definitions": []interface{}{
 			map[string]interface{}{
-				"id":          7,
+				"id":          10,
 				"caption":     "Field-4 - Updated",
 				"type":        "A",
 				"mandatory":   false,

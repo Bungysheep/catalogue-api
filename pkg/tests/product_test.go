@@ -113,6 +113,18 @@ func getProduct(t *testing.T) {
 	assert.Equal(t, dataUomOutput["description"], "Each")
 	assert.Equal(t, dataUomOutput["ratio"], float64(1))
 	assert.Equal(t, dataUomOutput["change_mode"], float64(0))
+
+	dataFields := dataOutput["custom_fields"].([]interface{})
+	assert.Equal(t, len(dataFields), 3)
+
+	dataFieldOutput := dataFields[0].(map[string]interface{})
+	assert.Equal(t, dataFieldOutput["prod_id"], float64(2))
+	assert.Equal(t, dataFieldOutput["alpha_value"], "Field-Prod-2")
+	assert.Equal(t, dataFieldOutput["numeric_value"], float64(0))
+
+	dateValue, _ := time.Parse(time.RFC3339, dataFieldOutput["date_value"].(string))
+
+	assert.Equal(t, dateValue.Format(configs.DATEFORMAT), "2000-01-01 00:00:00")
 }
 
 func createProduct(t *testing.T) {
@@ -139,6 +151,20 @@ func createProduct(t *testing.T) {
 				"ratio":       2,
 				"vers":        1,
 				"change_mode": 1,
+			},
+		},
+		"custom_fields": []interface{}{
+			map[string]interface{}{
+				"field_id":    4,
+				"alpha_value": "Custom Field",
+			},
+			map[string]interface{}{
+				"field_id":      5,
+				"numeric_value": 10.5,
+			},
+			map[string]interface{}{
+				"field_id":   6,
+				"date_value": time.Now(),
 			},
 		},
 	}
@@ -191,6 +217,18 @@ func createProduct(t *testing.T) {
 	assert.Equal(t, dataUomOutput["description"], "Each")
 	assert.Equal(t, dataUomOutput["ratio"], float64(1))
 	assert.Equal(t, dataUomOutput["change_mode"], float64(0))
+
+	dataFields := dataOutput["custom_fields"].([]interface{})
+	assert.Equal(t, len(dataFields), 3)
+
+	dataFieldOutput := dataFields[0].(map[string]interface{})
+	assert.Equal(t, dataFieldOutput["prod_id"], float64(4))
+	assert.Equal(t, dataFieldOutput["alpha_value"], "Custom Field")
+	assert.Equal(t, dataFieldOutput["numeric_value"], float64(0))
+
+	dateValue, _ := time.Parse(time.RFC3339, dataFieldOutput["date_value"].(string))
+
+	assert.Equal(t, dateValue.Format(configs.DATEFORMAT), "2000-01-01 00:00:00")
 }
 
 func createProductWithMultiDefaultUom(t *testing.T) {
@@ -217,6 +255,20 @@ func createProductWithMultiDefaultUom(t *testing.T) {
 				"ratio":       1,
 				"vers":        1,
 				"change_mode": 1,
+			},
+		},
+		"custom_fields": []interface{}{
+			map[string]interface{}{
+				"field_id":    4,
+				"alpha_value": "Custom Field",
+			},
+			map[string]interface{}{
+				"field_id":      5,
+				"numeric_value": 10.5,
+			},
+			map[string]interface{}{
+				"field_id":   6,
+				"date_value": time.Now(),
 			},
 		},
 	}
@@ -272,6 +324,20 @@ func createProductWithoutDefaultUom(t *testing.T) {
 				"change_mode": 1,
 			},
 		},
+		"custom_fields": []interface{}{
+			map[string]interface{}{
+				"field_id":    4,
+				"alpha_value": "Custom Field",
+			},
+			map[string]interface{}{
+				"field_id":      5,
+				"numeric_value": 10.5,
+			},
+			map[string]interface{}{
+				"field_id":   6,
+				"date_value": time.Now(),
+			},
+		},
 	}
 
 	bodyReq, err := json.Marshal(dataInput)
@@ -310,6 +376,20 @@ func createProductWithoutUom(t *testing.T) {
 		"modified_at": time.Now(),
 		"vers":        1,
 		"uoms":        []interface{}{},
+		"custom_fields": []interface{}{
+			map[string]interface{}{
+				"field_id":    4,
+				"alpha_value": "Custom Field",
+			},
+			map[string]interface{}{
+				"field_id":      5,
+				"numeric_value": 10.5,
+			},
+			map[string]interface{}{
+				"field_id":   6,
+				"date_value": time.Now(),
+			},
+		},
 	}
 
 	bodyReq, err := json.Marshal(dataInput)
@@ -362,6 +442,20 @@ func updateProductWithInvalidVersion(t *testing.T) {
 				"ratio":       2,
 				"vers":        1,
 				"change_mode": 2,
+			},
+		},
+		"custom_fields": []interface{}{
+			map[string]interface{}{
+				"field_id":    4,
+				"alpha_value": "Custom Field",
+			},
+			map[string]interface{}{
+				"field_id":      5,
+				"numeric_value": 10.5,
+			},
+			map[string]interface{}{
+				"field_id":   6,
+				"date_value": time.Now(),
 			},
 		},
 	}
@@ -418,6 +512,20 @@ func updateProduct(t *testing.T) {
 				"change_mode": 2,
 			},
 		},
+		"custom_fields": []interface{}{
+			map[string]interface{}{
+				"field_id":    4,
+				"alpha_value": "Custom Field",
+			},
+			map[string]interface{}{
+				"field_id":      5,
+				"numeric_value": 10.5,
+			},
+			map[string]interface{}{
+				"field_id":   6,
+				"date_value": time.Now(),
+			},
+		},
 	}
 
 	bodyReq, err := json.Marshal(dataInput)
@@ -466,6 +574,18 @@ func updateProduct(t *testing.T) {
 	assert.Equal(t, dataUomOutput["description"], "Box")
 	assert.Equal(t, dataUomOutput["ratio"], float64(4))
 	assert.Equal(t, dataUomOutput["change_mode"], float64(0))
+
+	dataFields := dataOutput["custom_fields"].([]interface{})
+	assert.Equal(t, len(dataFields), 3)
+
+	dataFieldOutput := dataFields[0].(map[string]interface{})
+	assert.Equal(t, dataFieldOutput["prod_id"], float64(4))
+	assert.Equal(t, dataFieldOutput["alpha_value"], "Custom Field")
+	assert.Equal(t, dataFieldOutput["numeric_value"], float64(0))
+
+	dateValue, _ := time.Parse(time.RFC3339, dataFieldOutput["date_value"].(string))
+
+	assert.Equal(t, dateValue.Format(configs.DATEFORMAT), "2000-01-01 00:00:00")
 }
 
 func updateProductWithAddingUom(t *testing.T) {
@@ -485,6 +605,20 @@ func updateProductWithAddingUom(t *testing.T) {
 				"ratio":       6,
 				"vers":        1,
 				"change_mode": 1,
+			},
+		},
+		"custom_fields": []interface{}{
+			map[string]interface{}{
+				"field_id":    4,
+				"alpha_value": "Custom Field",
+			},
+			map[string]interface{}{
+				"field_id":      5,
+				"numeric_value": 10.5,
+			},
+			map[string]interface{}{
+				"field_id":   6,
+				"date_value": time.Now(),
 			},
 		},
 	}
@@ -535,6 +669,18 @@ func updateProductWithAddingUom(t *testing.T) {
 	assert.Equal(t, dataUomOutput["description"], "Pack")
 	assert.Equal(t, dataUomOutput["ratio"], float64(6))
 	assert.Equal(t, dataUomOutput["change_mode"], float64(0))
+
+	dataFields := dataOutput["custom_fields"].([]interface{})
+	assert.Equal(t, len(dataFields), 3)
+
+	dataFieldOutput := dataFields[0].(map[string]interface{})
+	assert.Equal(t, dataFieldOutput["prod_id"], float64(4))
+	assert.Equal(t, dataFieldOutput["alpha_value"], "Custom Field")
+	assert.Equal(t, dataFieldOutput["numeric_value"], float64(0))
+
+	dateValue, _ := time.Parse(time.RFC3339, dataFieldOutput["date_value"].(string))
+
+	assert.Equal(t, dateValue.Format(configs.DATEFORMAT), "2000-01-01 00:00:00")
 }
 
 func updateProductWithDeletingUom(t *testing.T) {
@@ -554,6 +700,20 @@ func updateProductWithDeletingUom(t *testing.T) {
 				"ratio":       6,
 				"vers":        1,
 				"change_mode": 3,
+			},
+		},
+		"custom_fields": []interface{}{
+			map[string]interface{}{
+				"field_id":    4,
+				"alpha_value": "Custom Field",
+			},
+			map[string]interface{}{
+				"field_id":      5,
+				"numeric_value": 10.5,
+			},
+			map[string]interface{}{
+				"field_id":   6,
+				"date_value": time.Now(),
 			},
 		},
 	}
@@ -604,6 +764,18 @@ func updateProductWithDeletingUom(t *testing.T) {
 	assert.Equal(t, dataUomOutput["description"], "Box")
 	assert.Equal(t, dataUomOutput["ratio"], float64(4))
 	assert.Equal(t, dataUomOutput["change_mode"], float64(0))
+
+	dataFields := dataOutput["custom_fields"].([]interface{})
+	assert.Equal(t, len(dataFields), 3)
+
+	dataFieldOutput := dataFields[0].(map[string]interface{})
+	assert.Equal(t, dataFieldOutput["prod_id"], float64(4))
+	assert.Equal(t, dataFieldOutput["alpha_value"], "Custom Field")
+	assert.Equal(t, dataFieldOutput["numeric_value"], float64(0))
+
+	dateValue, _ := time.Parse(time.RFC3339, dataFieldOutput["date_value"].(string))
+
+	assert.Equal(t, dateValue.Format(configs.DATEFORMAT), "2000-01-01 00:00:00")
 }
 
 func updateProductWithAddingAndUpdatingUom(t *testing.T) {
@@ -633,6 +805,20 @@ func updateProductWithAddingAndUpdatingUom(t *testing.T) {
 				"change_mode": 1,
 			},
 		},
+		"custom_fields": []interface{}{
+			map[string]interface{}{
+				"field_id":    4,
+				"alpha_value": "Custom Field",
+			},
+			map[string]interface{}{
+				"field_id":      5,
+				"numeric_value": 10.5,
+			},
+			map[string]interface{}{
+				"field_id":   6,
+				"date_value": time.Now(),
+			},
+		},
 	}
 
 	bodyReq, err := json.Marshal(dataInput)
@@ -681,6 +867,18 @@ func updateProductWithAddingAndUpdatingUom(t *testing.T) {
 	assert.Equal(t, dataUomOutput["description"], "Pack")
 	assert.Equal(t, dataUomOutput["ratio"], float64(6))
 	assert.Equal(t, dataUomOutput["change_mode"], float64(0))
+
+	dataFields := dataOutput["custom_fields"].([]interface{})
+	assert.Equal(t, len(dataFields), 3)
+
+	dataFieldOutput := dataFields[0].(map[string]interface{})
+	assert.Equal(t, dataFieldOutput["prod_id"], float64(4))
+	assert.Equal(t, dataFieldOutput["alpha_value"], "Custom Field")
+	assert.Equal(t, dataFieldOutput["numeric_value"], float64(0))
+
+	dateValue, _ := time.Parse(time.RFC3339, dataFieldOutput["date_value"].(string))
+
+	assert.Equal(t, dateValue.Format(configs.DATEFORMAT), "2000-01-01 00:00:00")
 }
 
 func updateProductWithDeletingAndUpdatingUom(t *testing.T) {
@@ -708,6 +906,20 @@ func updateProductWithDeletingAndUpdatingUom(t *testing.T) {
 				"ratio":       6,
 				"vers":        1,
 				"change_mode": 1,
+			},
+		},
+		"custom_fields": []interface{}{
+			map[string]interface{}{
+				"field_id":    4,
+				"alpha_value": "Custom Field",
+			},
+			map[string]interface{}{
+				"field_id":      5,
+				"numeric_value": 10.5,
+			},
+			map[string]interface{}{
+				"field_id":   6,
+				"date_value": time.Now(),
 			},
 		},
 	}
@@ -758,6 +970,18 @@ func updateProductWithDeletingAndUpdatingUom(t *testing.T) {
 	assert.Equal(t, dataUomOutput["description"], "Box")
 	assert.Equal(t, dataUomOutput["ratio"], float64(4))
 	assert.Equal(t, dataUomOutput["change_mode"], float64(0))
+
+	dataFields := dataOutput["custom_fields"].([]interface{})
+	assert.Equal(t, len(dataFields), 3)
+
+	dataFieldOutput := dataFields[0].(map[string]interface{})
+	assert.Equal(t, dataFieldOutput["prod_id"], float64(4))
+	assert.Equal(t, dataFieldOutput["alpha_value"], "Custom Field")
+	assert.Equal(t, dataFieldOutput["numeric_value"], float64(0))
+
+	dateValue, _ := time.Parse(time.RFC3339, dataFieldOutput["date_value"].(string))
+
+	assert.Equal(t, dateValue.Format(configs.DATEFORMAT), "2000-01-01 00:00:00")
 }
 
 func deleteProduct(t *testing.T) {

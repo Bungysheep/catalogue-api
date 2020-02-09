@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/bungysheep/catalogue-api/pkg/models/v1/basemodel"
+	"github.com/bungysheep/catalogue-api/pkg/models/v1/catalogue"
 	"github.com/bungysheep/catalogue-api/pkg/models/v1/productcustomfield"
 	"github.com/bungysheep/catalogue-api/pkg/models/v1/unitofmeasure"
 )
@@ -148,7 +149,7 @@ func (prod *Product) GetNumberOfDefaultUom() int {
 }
 
 // DoValidate - Validate product
-func (prod *Product) DoValidate(otherProd *Product) (bool, string) {
+func (prod *Product) DoValidate(otherProd *Product, clg *catalogue.Catalogue) (bool, string) {
 	var ok bool
 	var message string
 
@@ -174,6 +175,15 @@ func (prod *Product) DoValidate(otherProd *Product) (bool, string) {
 
 	for _, uom := range prod.UnitOfMeasures {
 		ok, message = uom.DoValidate()
+		if !ok {
+			return false, message
+		}
+	}
+
+	for _, field := range prod.CustomFields {
+		fieldDef := clg.GetCustomFieldDefinition(field.GetFieldID())
+
+		ok, message = field.DoValidate(fieldDef)
 		if !ok {
 			return false, message
 		}

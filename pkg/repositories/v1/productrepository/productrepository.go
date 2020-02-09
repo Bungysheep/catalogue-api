@@ -8,6 +8,7 @@ import (
 	"github.com/bungysheep/catalogue-api/pkg/configs"
 	productmodel "github.com/bungysheep/catalogue-api/pkg/models/v1/product"
 	"github.com/bungysheep/catalogue-api/pkg/protocols/database"
+	"github.com/bungysheep/catalogue-api/pkg/repositories/v1/productcustomfieldrepository"
 	"github.com/bungysheep/catalogue-api/pkg/repositories/v1/unitofmeasurerepository"
 )
 
@@ -87,6 +88,14 @@ func (prodRepo *productRepository) GetByID(ctx context.Context, id int64) (*prod
 	}
 
 	result.UnitOfMeasures = uoms
+
+	fieldRepo := productcustomfieldrepository.NewProductCustomFieldRepository()
+	fields, err := fieldRepo.GetByProduct(ctx, id)
+	if err != nil {
+		return result, err
+	}
+
+	result.CustomFields = fields
 
 	return result, nil
 }
