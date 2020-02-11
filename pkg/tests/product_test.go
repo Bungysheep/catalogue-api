@@ -128,7 +128,7 @@ func getProduct(t *testing.T) {
 
 	dateValue, _ := time.Parse(time.RFC3339, dataFieldOutput["date_value"].(string))
 
-	assert.Equal(t, dateValue.Format(configs.DATEFORMAT), "2000-01-01 00:00:00")
+	assert.Equal(t, dateValue.Format(configs.SHORTDATEFORMAT), "2000-01-01")
 }
 
 func createProduct(t *testing.T) {
@@ -209,8 +209,8 @@ func createProduct(t *testing.T) {
 	createdAt, _ := time.Parse(time.RFC3339, dataOutput["created_at"].(string))
 	modifiedAt, _ := time.Parse(time.RFC3339, dataOutput["modified_at"].(string))
 
-	assert.Equal(t, createdAt.Local().Format(configs.DATEFORMAT), dataInput["created_at"].(time.Time).Format(configs.DATEFORMAT))
-	assert.Equal(t, modifiedAt.Local().Format(configs.DATEFORMAT), dataInput["modified_at"].(time.Time).Format(configs.DATEFORMAT))
+	assert.Equal(t, createdAt.Local().Format(configs.SHORTDATEFORMAT), dataInput["created_at"].(time.Time).Format(configs.SHORTDATEFORMAT))
+	assert.Equal(t, modifiedAt.Local().Format(configs.SHORTDATEFORMAT), dataInput["modified_at"].(time.Time).Format(configs.SHORTDATEFORMAT))
 
 	dataUoms := dataOutput["uoms"].([]interface{})
 	assert.Equal(t, len(dataUoms), 2)
@@ -232,7 +232,7 @@ func createProduct(t *testing.T) {
 
 	dateValue, _ := time.Parse(time.RFC3339, dataFieldOutput["date_value"].(string))
 
-	assert.Equal(t, dateValue.Format(configs.DATEFORMAT), "2000-01-01 00:00:00")
+	assert.Equal(t, dateValue.Format(configs.SHORTDATEFORMAT), "2000-01-01")
 }
 
 func createProductWithMultiDefaultUom(t *testing.T) {
@@ -707,7 +707,7 @@ func updateProduct(t *testing.T) {
 
 	modifiedAt, _ := time.Parse(time.RFC3339, dataOutput["modified_at"].(string))
 
-	assert.Equal(t, modifiedAt.Local().Format(configs.DATEFORMAT), dataInput["modified_at"].(time.Time).Format(configs.DATEFORMAT))
+	assert.Equal(t, modifiedAt.Local().Format(configs.SHORTDATEFORMAT), dataInput["modified_at"].(time.Time).Format(configs.SHORTDATEFORMAT))
 
 	dataUoms := dataOutput["uoms"].([]interface{})
 	assert.Equal(t, len(dataUoms), 2)
@@ -729,7 +729,7 @@ func updateProduct(t *testing.T) {
 
 	dateValue, _ := time.Parse(time.RFC3339, dataFieldOutput["date_value"].(string))
 
-	assert.Equal(t, dateValue.Format(configs.DATEFORMAT), "2000-01-01 00:00:00")
+	assert.Equal(t, dateValue.Format(configs.SHORTDATEFORMAT), "2000-01-01")
 }
 
 func updateProductWithAddingUom(t *testing.T) {
@@ -805,7 +805,7 @@ func updateProductWithAddingUom(t *testing.T) {
 
 	modifiedAt, _ := time.Parse(time.RFC3339, dataOutput["modified_at"].(string))
 
-	assert.Equal(t, modifiedAt.Local().Format(configs.DATEFORMAT), dataInput["modified_at"].(time.Time).Format(configs.DATEFORMAT))
+	assert.Equal(t, modifiedAt.Local().Format(configs.SHORTDATEFORMAT), dataInput["modified_at"].(time.Time).Format(configs.SHORTDATEFORMAT))
 
 	dataUoms := dataOutput["uoms"].([]interface{})
 	assert.Equal(t, len(dataUoms), 3)
@@ -827,7 +827,7 @@ func updateProductWithAddingUom(t *testing.T) {
 
 	dateValue, _ := time.Parse(time.RFC3339, dataFieldOutput["date_value"].(string))
 
-	assert.Equal(t, dateValue.Format(configs.DATEFORMAT), "2000-01-01 00:00:00")
+	assert.Equal(t, dateValue.Format(configs.SHORTDATEFORMAT), "2000-01-01")
 }
 
 func updateProductWithDeletingUom(t *testing.T) {
@@ -903,7 +903,7 @@ func updateProductWithDeletingUom(t *testing.T) {
 
 	modifiedAt, _ := time.Parse(time.RFC3339, dataOutput["modified_at"].(string))
 
-	assert.Equal(t, modifiedAt.Local().Format(configs.DATEFORMAT), dataInput["modified_at"].(time.Time).Format(configs.DATEFORMAT))
+	assert.Equal(t, modifiedAt.Local().Format(configs.SHORTDATEFORMAT), dataInput["modified_at"].(time.Time).Format(configs.SHORTDATEFORMAT))
 
 	dataUoms := dataOutput["uoms"].([]interface{})
 	assert.Equal(t, len(dataUoms), 2)
@@ -925,7 +925,7 @@ func updateProductWithDeletingUom(t *testing.T) {
 
 	dateValue, _ := time.Parse(time.RFC3339, dataFieldOutput["date_value"].(string))
 
-	assert.Equal(t, dateValue.Format(configs.DATEFORMAT), "2000-01-01 00:00:00")
+	assert.Equal(t, dateValue.Format(configs.SHORTDATEFORMAT), "2000-01-01")
 }
 
 func updateProductWithAddingAndUpdatingUom(t *testing.T) {
@@ -1009,7 +1009,7 @@ func updateProductWithAddingAndUpdatingUom(t *testing.T) {
 
 	modifiedAt, _ := time.Parse(time.RFC3339, dataOutput["modified_at"].(string))
 
-	assert.Equal(t, modifiedAt.Local().Format(configs.DATEFORMAT), dataInput["modified_at"].(time.Time).Format(configs.DATEFORMAT))
+	assert.Equal(t, modifiedAt.Local().Format(configs.SHORTDATEFORMAT), dataInput["modified_at"].(time.Time).Format(configs.SHORTDATEFORMAT))
 
 	dataUoms := dataOutput["uoms"].([]interface{})
 	assert.Equal(t, len(dataUoms), 3)
@@ -1031,7 +1031,7 @@ func updateProductWithAddingAndUpdatingUom(t *testing.T) {
 
 	dateValue, _ := time.Parse(time.RFC3339, dataFieldOutput["date_value"].(string))
 
-	assert.Equal(t, dateValue.Format(configs.DATEFORMAT), "2000-01-01 00:00:00")
+	assert.Equal(t, dateValue.Format(configs.SHORTDATEFORMAT), "2000-01-01")
 }
 
 func updateProductWithDeletingAndUpdatingUom(t *testing.T) {
@@ -1115,7 +1115,7 @@ func updateProductWithDeletingAndUpdatingUom(t *testing.T) {
 
 	modifiedAt, _ := time.Parse(time.RFC3339, dataOutput["modified_at"].(string))
 
-	assert.Equal(t, modifiedAt.Local().Format(configs.DATEFORMAT), dataInput["modified_at"].(time.Time).Format(configs.DATEFORMAT))
+	assert.Equal(t, modifiedAt.Local().Format(configs.SHORTDATEFORMAT), dataInput["modified_at"].(time.Time).Format(configs.SHORTDATEFORMAT))
 
 	dataUoms := dataOutput["uoms"].([]interface{})
 	assert.Equal(t, len(dataUoms), 3)
@@ -1137,7 +1137,7 @@ func updateProductWithDeletingAndUpdatingUom(t *testing.T) {
 
 	dateValue, _ := time.Parse(time.RFC3339, dataFieldOutput["date_value"].(string))
 
-	assert.Equal(t, dateValue.Format(configs.DATEFORMAT), "2000-01-01 00:00:00")
+	assert.Equal(t, dateValue.Format(configs.SHORTDATEFORMAT), "2000-01-01")
 }
 
 func deleteProduct(t *testing.T) {

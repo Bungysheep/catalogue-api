@@ -175,8 +175,8 @@ func createCatalogue(t *testing.T) {
 	createdAt, _ := time.Parse(time.RFC3339, dataOutput["created_at"].(string))
 	modifiedAt, _ := time.Parse(time.RFC3339, dataOutput["modified_at"].(string))
 
-	assert.Equal(t, createdAt.Local().Format(configs.DATEFORMAT), dataInput["created_at"].(time.Time).Format(configs.DATEFORMAT))
-	assert.Equal(t, modifiedAt.Local().Format(configs.DATEFORMAT), dataInput["modified_at"].(time.Time).Format(configs.DATEFORMAT))
+	assert.Equal(t, createdAt.Local().Format(configs.SHORTDATEFORMAT), dataInput["created_at"].(time.Time).Format(configs.SHORTDATEFORMAT))
+	assert.Equal(t, modifiedAt.Local().Format(configs.SHORTDATEFORMAT), dataInput["modified_at"].(time.Time).Format(configs.SHORTDATEFORMAT))
 
 	dataFieldDefs := dataOutput["field_definitions"].([]interface{})
 	assert.Equal(t, len(dataFieldDefs), 3)
@@ -238,8 +238,8 @@ func createCatalogueWithoutFieldDef(t *testing.T) {
 	createdAt, _ := time.Parse(time.RFC3339, dataOutput["created_at"].(string))
 	modifiedAt, _ := time.Parse(time.RFC3339, dataOutput["modified_at"].(string))
 
-	assert.Equal(t, createdAt.Local().Format(configs.DATEFORMAT), dataInput["created_at"].(time.Time).Format(configs.DATEFORMAT))
-	assert.Equal(t, modifiedAt.Local().Format(configs.DATEFORMAT), dataInput["modified_at"].(time.Time).Format(configs.DATEFORMAT))
+	assert.Equal(t, createdAt.Local().Format(configs.SHORTDATEFORMAT), dataInput["created_at"].(time.Time).Format(configs.SHORTDATEFORMAT))
+	assert.Equal(t, modifiedAt.Local().Format(configs.SHORTDATEFORMAT), dataInput["modified_at"].(time.Time).Format(configs.SHORTDATEFORMAT))
 
 	dataFieldDefs := dataOutput["field_definitions"].([]interface{})
 	assert.Equal(t, len(dataFieldDefs), 0)
@@ -347,7 +347,7 @@ func updateCatalogue(t *testing.T) {
 
 	modifiedAt, _ := time.Parse(time.RFC3339, dataOutput["modified_at"].(string))
 
-	assert.Equal(t, modifiedAt.Local().Format(configs.DATEFORMAT), dataInput["modified_at"].(time.Time).Format(configs.DATEFORMAT))
+	assert.Equal(t, modifiedAt.Local().Format(configs.SHORTDATEFORMAT), dataInput["modified_at"].(time.Time).Format(configs.SHORTDATEFORMAT))
 
 	dataFieldDefs := dataOutput["field_definitions"].([]interface{})
 	assert.Equal(t, len(dataFieldDefs), 3)
@@ -415,7 +415,7 @@ func updateCatalogueWithAddingFieldDef(t *testing.T) {
 
 	modifiedAt, _ := time.Parse(time.RFC3339, dataOutput["modified_at"].(string))
 
-	assert.Equal(t, modifiedAt.Local().Format(configs.DATEFORMAT), dataInput["modified_at"].(time.Time).Format(configs.DATEFORMAT))
+	assert.Equal(t, modifiedAt.Local().Format(configs.SHORTDATEFORMAT), dataInput["modified_at"].(time.Time).Format(configs.SHORTDATEFORMAT))
 
 	dataFieldDefs := dataOutput["field_definitions"].([]interface{})
 	assert.Equal(t, len(dataFieldDefs), 4)
@@ -483,7 +483,7 @@ func updateCatalogueWithDeletingFieldDef(t *testing.T) {
 
 	modifiedAt, _ := time.Parse(time.RFC3339, dataOutput["modified_at"].(string))
 
-	assert.Equal(t, modifiedAt.Local().Format(configs.DATEFORMAT), dataInput["modified_at"].(time.Time).Format(configs.DATEFORMAT))
+	assert.Equal(t, modifiedAt.Local().Format(configs.SHORTDATEFORMAT), dataInput["modified_at"].(time.Time).Format(configs.SHORTDATEFORMAT))
 
 	dataFieldDefs := dataOutput["field_definitions"].([]interface{})
 	assert.Equal(t, len(dataFieldDefs), 3)
