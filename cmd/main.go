@@ -9,7 +9,7 @@ import (
 
 	"github.com/bungysheep/catalogue-api/pkg/protocols/database"
 	"github.com/bungysheep/catalogue-api/pkg/protocols/rest"
-	_ "github.com/go-sql-driver/mysql"
+	_ "github.com/lib/pq"
 )
 
 func main() {

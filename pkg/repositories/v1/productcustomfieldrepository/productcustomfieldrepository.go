@@ -3,9 +3,7 @@ package productcustomfieldrepository
 import (
 	"context"
 	"fmt"
-	"time"
 
-	"github.com/bungysheep/catalogue-api/pkg/configs"
 	productcustomfieldmodel "github.com/bungysheep/catalogue-api/pkg/models/v1/productcustomfield"
 	"github.com/bungysheep/catalogue-api/pkg/protocols/database"
 )
@@ -40,7 +38,7 @@ func (pcfRepo *productCustomFieldRepository) GetByID(ctx context.Context, id int
 	stmt, err := conn.PrepareContext(ctx,
 		`SELECT id, prod_id, field_id, alpha_value, numeric_value, date_value
 		FROM product_custom_fields 
-		WHERE id=?`)
+		WHERE id=$1`)
 	if err != nil {
 		return nil, fmt.Errorf("Failed preparing read product custom field, error: %v", err)
 	}
@@ -59,18 +57,15 @@ func (pcfRepo *productCustomFieldRepository) GetByID(ctx context.Context, id int
 		return nil, nil
 	}
 
-	var dateValue string
 	if err := rows.Scan(
 		&result.ID,
 		&result.ProdID,
 		&result.FieldID,
 		&result.AlphaValue,
 		&result.NumericValue,
-		&dateValue); err != nil {
+		&result.DateValue); err != nil {
 		return nil, fmt.Errorf("Failed retrieve product custom field record value, error: %v", err)
 	}
-
-	result.DateValue, _ = time.Parse(configs.DATEFORMAT, dateValue)
 
 	return result, nil
 }
@@ -87,7 +82,7 @@ func (pcfRepo *productCustomFieldRepository) GetByProduct(ctx context.Context, p
 	stmt, err := conn.PrepareContext(ctx,
 		`SELECT id, prod_id, field_id, alpha_value, numeric_value, date_value
 		FROM product_custom_fields
-		WHERE prod_id=?
+		WHERE prod_id=$1
 		ORDER BY field_id, id ASC`)
 	if err != nil {
 		return result, fmt.Errorf("Failed preparing read product custom field, error: %v", err)
@@ -100,7 +95,6 @@ func (pcfRepo *productCustomFieldRepository) GetByProduct(ctx context.Context, p
 	}
 	defer rows.Close()
 
-	var dateValue string
 	for {
 		if !rows.Next() {
 			if err := rows.Err(); err != nil {
@@ -116,11 +110,9 @@ func (pcfRepo *productCustomFieldRepository) GetByProduct(ctx context.Context, p
 			&field.FieldID,
 			&field.AlphaValue,
 			&field.NumericValue,
-			&dateValue); err != nil {
+			&field.DateValue); err != nil {
 			return result, fmt.Errorf("Failed retrieve product custom field record value, error: %v", err)
 		}
-
-		field.DateValue, _ = time.Parse(configs.DATEFORMAT, dateValue)
 
 		result = append(result, field)
 	}
@@ -138,18 +130,19 @@ func (pcfRepo *productCustomFieldRepository) Create(ctx context.Context, data *p
 	stmt, err := conn.PrepareContext(ctx,
 		`INSERT INTO product_custom_fields 
 			(prod_id, field_id, alpha_value, numeric_value, date_value) 
-		VALUES (?, ?, ?, ?, ?)`)
+		VALUES ($1, $2, $3, $4, $5) RETURNING id`)
 	if err != nil {
 		return 0, fmt.Errorf("Failed preparing insert product custom field, error: %v", err)
 	}
 	defer stmt.Close()
 
-	result, err := stmt.ExecContext(ctx, data.GetProdID(), data.GetFieldID(), data.GetAlphaValue(), data.GetNumericValue(), data.GetDateValue())
+	var lastInsertID int64
+	err = stmt.QueryRowContext(ctx, data.GetProdID(), data.GetFieldID(), data.GetAlphaValue(), data.GetNumericValue(), data.GetDateValue()).Scan(&lastInsertID)
 	if err != nil {
 		return 0, fmt.Errorf("Failed inserting product custom field, error: %v", err)
 	}
 
-	return result.LastInsertId()
+	return lastInsertID, nil
 }
 
 func (pcfRepo *productCustomFieldRepository) Update(ctx context.Context, data *productcustomfieldmodel.ProductCustomField) (int64, error) {
@@ -160,8 +153,8 @@ func (pcfRepo *productCustomFieldRepository) Update(ctx context.Context, data *p
 	defer conn.Close()
 
 	stmt, err := conn.PrepareContext(ctx,
-		`UPDATE product_custom_fields SET alpha_value=?, numeric_value=?, date_value=? 
-		WHERE id=?`)
+		`UPDATE product_custom_fields SET alpha_value=$1, numeric_value=$2, date_value=$3 
+		WHERE id=$4`)
 	if err != nil {
 		return 0, fmt.Errorf("Failed preparing update product custom field, error: %v", err)
 	}
@@ -184,7 +177,7 @@ func (pcfRepo *productCustomFieldRepository) Delete(ctx context.Context, id int6
 
 	stmt, err := conn.PrepareContext(ctx,
 		`DELETE FROM product_custom_fields 
-		WHERE id=?`)
+		WHERE id=$1`)
 	if err != nil {
 		return 0, fmt.Errorf("Failed preparing delete product custom field, error: %v", err)
 	}
@@ -207,9 +200,9 @@ func (pcfRepo *productCustomFieldRepository) DeleteByProduct(ctx context.Context
 
 	stmt, err := conn.PrepareContext(ctx,
 		`DELETE FROM product_custom_fields 
-		WHERE prod_id=?`)
+		WHERE prod_id=$1`)
 	if err != nil {
-		return fmt.Errorf("Failed preparing delete v, error: %v", err)
+		return fmt.Errorf("Failed preparing delete product custom field, error: %v", err)
 	}
 	defer stmt.Close()
 

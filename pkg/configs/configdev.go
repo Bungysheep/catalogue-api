@@ -19,8 +19,8 @@ const (
 	// WRITETIMEOUT - Write timeout
 	WRITETIMEOUT = 10
 
-	// MYSQLTESTCONNSTRING - Mysql test connection string
-	MYSQLTESTCONNSTRING = "root@tcp(127.0.0.1:3306)/clg_test_mysql"
+	// PGTESTCONNSTRING - Postgres connection string
+	PGTESTCONNSTRING = "postgres://clg_local_dev:clg_local_dev@localhost:5432/clg_local_dev?sslmode=disable"
 
 	// TOKENLIFETIME - Jwt token lifetime
 	TOKENLIFETIME = 5

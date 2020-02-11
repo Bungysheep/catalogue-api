@@ -3,9 +3,7 @@ package userrepository
 import (
 	"context"
 	"fmt"
-	"time"
 
-	"github.com/bungysheep/catalogue-api/pkg/configs"
 	usermodel "github.com/bungysheep/catalogue-api/pkg/models/v1/user"
 	"github.com/bungysheep/catalogue-api/pkg/protocols/database"
 )
@@ -48,8 +46,6 @@ func (usrRepo *userRepository) GetAll(ctx context.Context) ([]*usermodel.User, e
 	}
 	defer rows.Close()
 
-	var createdAt string
-	var modifiedAt string
 	for {
 		if !rows.Next() {
 			if err := rows.Err(); err != nil {
@@ -66,15 +62,12 @@ func (usrRepo *userRepository) GetAll(ctx context.Context) ([]*usermodel.User, e
 			&user.Password,
 			&user.Status,
 			&user.CreatedBy,
-			&createdAt,
+			&user.CreatedAt,
 			&user.ModifiedBy,
-			&modifiedAt,
+			&user.ModifiedAt,
 			&user.Vers); err != nil {
 			return result, fmt.Errorf("Failed retrieve user record value, error: %v", err)
 		}
-
-		user.CreatedAt, _ = time.Parse(configs.DATEFORMAT, createdAt)
-		user.ModifiedAt, _ = time.Parse(configs.DATEFORMAT, modifiedAt)
 
 		result = append(result, user)
 	}
@@ -94,7 +87,7 @@ func (usrRepo *userRepository) GetByUsername(ctx context.Context, username strin
 	stmt, err := conn.PrepareContext(ctx,
 		`SELECT username, name, email, password, status, created_by, created_at, modified_by, modified_at, vers
 		FROM users
-		WHERE username=?`)
+		WHERE username=$1`)
 	if err != nil {
 		return nil, fmt.Errorf("Failed preparing read user, error: %v", err)
 	}
@@ -113,8 +106,6 @@ func (usrRepo *userRepository) GetByUsername(ctx context.Context, username strin
 		return nil, nil
 	}
 
-	var createdAt string
-	var modifiedAt string
 	if err := rows.Scan(
 		&result.Username,
 		&result.Name,
@@ -122,15 +113,12 @@ func (usrRepo *userRepository) GetByUsername(ctx context.Context, username strin
 		&result.Password,
 		&result.Status,
 		&result.CreatedBy,
-		&createdAt,
+		&result.CreatedAt,
 		&result.ModifiedBy,
-		&modifiedAt,
+		&result.ModifiedAt,
 		&result.Vers); err != nil {
 		return nil, fmt.Errorf("Failed retrieve user record value, error: %v", err)
 	}
-
-	result.CreatedAt, _ = time.Parse(configs.DATEFORMAT, createdAt)
-	result.ModifiedAt, _ = time.Parse(configs.DATEFORMAT, modifiedAt)
 
 	return result, nil
 }
@@ -144,7 +132,7 @@ func (usrRepo *userRepository) Create(ctx context.Context, data *usermodel.User)
 
 	stmt, err := conn.PrepareContext(ctx,
 		`INSERT INTO users (username, name, email, password, status, created_by, created_at, modified_by, modified_at, vers) 
-		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 1)`)
+		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, 1)`)
 	if err != nil {
 		return 0, fmt.Errorf("Failed preparing create user, error: %v", err)
 	}

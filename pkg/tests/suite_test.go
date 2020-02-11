@@ -12,7 +12,7 @@ import (
 	"github.com/bungysheep/catalogue-api/pkg/protocols/database"
 	"github.com/bungysheep/catalogue-api/pkg/protocols/rest"
 	"github.com/dgrijalva/jwt-go"
-	_ "github.com/go-sql-driver/mysql"
+	_ "github.com/lib/pq"
 )
 
 var accessTokenTest string
@@ -70,28 +70,37 @@ func setupDatabase(ctx context.Context) {
 					('TESTUSER', 'Test User', 'Test.User@testmail.com', '$2a$10$6zFv6A/AzTEUxbmKGnBOAOhwksvcnopCQelGMskeyT1z8ONFswLzy', 'I', 'TESTUSER', CURRENT_TIMESTAMP, 'TESTUSER', CURRENT_TIMESTAMP, 1)`)
 
 	// Seed catalogues
-	_, err = tx.Exec(`INSERT INTO catalogues (code, descr, details, created_by, created_at, modified_by, modified_at, vers) VALUES 
+	_, err = tx.Exec(`INSERT INTO catalogues (code, descr, details, created_by, created_at, modified_by, modified_at, vers) VALUES
 					('CLG_TEST_1', 'Catalogue Test 1', 'Catalogue Test 1', 'TESTUSER', CURRENT_TIMESTAMP, 'TESTUSER', CURRENT_TIMESTAMP, 1),
 					('CLG_TEST_2', 'Catalogue Test 2', 'Catalogue Test 2', 'TESTUSER', CURRENT_TIMESTAMP, 'TESTUSER', CURRENT_TIMESTAMP, 1),
 					('CLG_TEST_3', 'Catalogue Test 3', 'Catalogue Test 3', 'TESTUSER', CURRENT_TIMESTAMP, 'TESTUSER', CURRENT_TIMESTAMP, 1)`)
 
+	// Restart custom field definitions sequence
+	_, err = tx.Exec(`ALTER SEQUENCE custom_field_definitions_id_seq RESTART WITH 1`)
+
 	// Seed custom field definitions
-	_, err = tx.Exec(`INSERT INTO custom_field_definitions (clg_code, caption, type, mandatory, created_by, created_at, modified_by, modified_at, vers) VALUES 
-					('CLG_TEST_1', 'Field-1', 'A', 1, 'TESTUSER', CURRENT_TIMESTAMP, 'TESTUSER', CURRENT_TIMESTAMP, 1),
-					('CLG_TEST_1', 'Field-2', 'N', 0, 'TESTUSER', CURRENT_TIMESTAMP, 'TESTUSER', CURRENT_TIMESTAMP, 1),
-					('CLG_TEST_1', 'Field-3', 'D', 0, 'TESTUSER', CURRENT_TIMESTAMP, 'TESTUSER', CURRENT_TIMESTAMP, 1),
-					('CLG_TEST_2', 'Field-1', 'A', 1, 'TESTUSER', CURRENT_TIMESTAMP, 'TESTUSER', CURRENT_TIMESTAMP, 1),
-					('CLG_TEST_2', 'Field-2', 'N', 0, 'TESTUSER', CURRENT_TIMESTAMP, 'TESTUSER', CURRENT_TIMESTAMP, 1),
-					('CLG_TEST_2', 'Field-3', 'D', 0, 'TESTUSER', CURRENT_TIMESTAMP, 'TESTUSER', CURRENT_TIMESTAMP, 1)`)
+	_, err = tx.Exec(`INSERT INTO custom_field_definitions (clg_code, caption, type, mandatory, created_by, created_at, modified_by, modified_at, vers) VALUES
+					('CLG_TEST_1', 'Field-1', 'A', true, 'TESTUSER', CURRENT_TIMESTAMP, 'TESTUSER', CURRENT_TIMESTAMP, 1),
+					('CLG_TEST_1', 'Field-2', 'N', false, 'TESTUSER', CURRENT_TIMESTAMP, 'TESTUSER', CURRENT_TIMESTAMP, 1),
+					('CLG_TEST_1', 'Field-3', 'D', false, 'TESTUSER', CURRENT_TIMESTAMP, 'TESTUSER', CURRENT_TIMESTAMP, 1),
+					('CLG_TEST_2', 'Field-1', 'A', true, 'TESTUSER', CURRENT_TIMESTAMP, 'TESTUSER', CURRENT_TIMESTAMP, 1),
+					('CLG_TEST_2', 'Field-2', 'N', false, 'TESTUSER', CURRENT_TIMESTAMP, 'TESTUSER', CURRENT_TIMESTAMP, 1),
+					('CLG_TEST_2', 'Field-3', 'D', false, 'TESTUSER', CURRENT_TIMESTAMP, 'TESTUSER', CURRENT_TIMESTAMP, 1)`)
+
+	// Restart products sequence
+	_, err = tx.Exec(`ALTER SEQUENCE products_id_seq RESTART WITH 1`)
 
 	// Seed products
-	_, err = tx.Exec(`INSERT INTO products (clg_code, code, descr, details, created_by, created_at, modified_by, modified_at, vers) VALUES 
+	_, err = tx.Exec(`INSERT INTO products (clg_code, code, descr, details, created_by, created_at, modified_by, modified_at, vers) VALUES
 					('CLG_TEST_1', 'P-0001', 'Book', 'Book', 'TESTUSER', CURRENT_TIMESTAMP, 'TESTUSER', CURRENT_TIMESTAMP, 1),
 					('CLG_TEST_1', 'P-0002', 'Pen', 'Pen', 'TESTUSER', CURRENT_TIMESTAMP, 'TESTUSER', CURRENT_TIMESTAMP, 1),
 					('CLG_TEST_1', 'P-0003', 'Tissue', 'Tissue', 'TESTUSER', CURRENT_TIMESTAMP, 'TESTUSER', CURRENT_TIMESTAMP, 1)`)
 
+	// Restart product uoms sequence
+	_, err = tx.Exec(`ALTER SEQUENCE product_uoms_id_seq RESTART WITH 1`)
+
 	// Seed product uoms
-	_, err = tx.Exec(`INSERT INTO product_uoms (prod_id, code, descr, ratio, vers) VALUES 
+	_, err = tx.Exec(`INSERT INTO product_uoms (prod_id, code, descr, ratio, vers) VALUES
 					(1, 'EACH', 'Each', 1, 1),
 					(1, 'BOX', 'Box', 2, 1),
 					(2, 'EACH', 'Each', 1, 1),
@@ -99,8 +108,11 @@ func setupDatabase(ctx context.Context) {
 					(3, 'EACH', 'Each', 1, 1),
 					(3, 'PACK', 'Pack', 6, 1)`)
 
+	// Restart product custom fields sequence
+	_, err = tx.Exec(`ALTER SEQUENCE product_custom_fields_id_seq RESTART WITH 1`)
+
 	// Seed product custom fields
-	_, err = tx.Exec(`INSERT INTO product_custom_fields (prod_id, field_id, alpha_value, numeric_value, date_value) VALUES 
+	_, err = tx.Exec(`INSERT INTO product_custom_fields (prod_id, field_id, alpha_value, numeric_value, date_value) VALUES
 					(1, 1, 'Field-Prod-1', DEFAULT, DEFAULT),
 					(1, 2, DEFAULT, 10.5, DEFAULT),
 					(1, 3, DEFAULT, DEFAULT, '2020-01-01'),

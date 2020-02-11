@@ -38,7 +38,7 @@ func (uomRepo *unitOfMeasureRepository) GetByID(ctx context.Context, id int64) (
 	stmt, err := conn.PrepareContext(ctx,
 		`SELECT id, prod_id, code, descr, ratio, vers
 		FROM product_uoms 
-		WHERE id=?`)
+		WHERE id=$1`)
 	if err != nil {
 		return nil, fmt.Errorf("Failed preparing read unit of measure, error: %v", err)
 	}
@@ -82,7 +82,7 @@ func (uomRepo *unitOfMeasureRepository) GetByProduct(ctx context.Context, prodID
 	stmt, err := conn.PrepareContext(ctx,
 		`SELECT id, prod_id, code, descr, ratio, vers
 		FROM product_uoms
-		WHERE prod_id=?
+		WHERE prod_id=$1
 		ORDER BY ratio ASC`)
 	if err != nil {
 		return result, fmt.Errorf("Failed preparing read unit of measure, error: %v", err)
@@ -130,18 +130,19 @@ func (uomRepo *unitOfMeasureRepository) Create(ctx context.Context, data *unitof
 	stmt, err := conn.PrepareContext(ctx,
 		`INSERT INTO product_uoms 
 			(prod_id, code, descr, ratio, vers) 
-		VALUES (?, ?, ?, ?, 1)`)
+		VALUES ($1, $2, $3, $4, 1) RETURNING id`)
 	if err != nil {
 		return 0, fmt.Errorf("Failed preparing insert unit or measure, error: %v", err)
 	}
 	defer stmt.Close()
 
-	result, err := stmt.ExecContext(ctx, data.GetProdID(), data.GetCode(), data.GetDescription(), data.GetRatio())
+	var lastInsertID int64
+	err = stmt.QueryRowContext(ctx, data.GetProdID(), data.GetCode(), data.GetDescription(), data.GetRatio()).Scan(&lastInsertID)
 	if err != nil {
 		return 0, fmt.Errorf("Failed inserting unit or measure, error: %v", err)
 	}
 
-	return result.LastInsertId()
+	return lastInsertID, nil
 }
 
 func (uomRepo *unitOfMeasureRepository) Update(ctx context.Context, data *unitofmeasuremodel.UnitOfMeasure) (int64, error) {
@@ -152,8 +153,8 @@ func (uomRepo *unitOfMeasureRepository) Update(ctx context.Context, data *unitof
 	defer conn.Close()
 
 	stmt, err := conn.PrepareContext(ctx,
-		`UPDATE product_uoms SET code=?, descr=?, ratio=?, vers=vers+1 
-		WHERE id=?`)
+		`UPDATE product_uoms SET code=$1, descr=$2, ratio=$3, vers=vers+1 
+		WHERE id=$4`)
 	if err != nil {
 		return 0, fmt.Errorf("Failed preparing update unit or measure, error: %v", err)
 	}
@@ -176,7 +177,7 @@ func (uomRepo *unitOfMeasureRepository) Delete(ctx context.Context, id int64) (i
 
 	stmt, err := conn.PrepareContext(ctx,
 		`DELETE FROM product_uoms 
-		WHERE id=?`)
+		WHERE id=$1`)
 	if err != nil {
 		return 0, fmt.Errorf("Failed preparing delete unit or measure, error: %v", err)
 	}
@@ -199,7 +200,7 @@ func (uomRepo *unitOfMeasureRepository) DeleteByProduct(ctx context.Context, pro
 
 	stmt, err := conn.PrepareContext(ctx,
 		`DELETE FROM product_uoms 
-		WHERE prod_id=?`)
+		WHERE prod_id=$1`)
 	if err != nil {
 		return fmt.Errorf("Failed preparing delete unit or measure, error: %v", err)
 	}

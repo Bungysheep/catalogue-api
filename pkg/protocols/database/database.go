@@ -16,7 +16,7 @@ var (
 func CreateDbConnection() error {
 	log.Printf("Creating database connection...")
 
-	db, err := sql.Open("mysql", configs.MYSQLTESTCONNSTRING)
+	db, err := sql.Open("postgres", configs.PGTESTCONNSTRING)
 	if err != nil {
 		return err
 	}

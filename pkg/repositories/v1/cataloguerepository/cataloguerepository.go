@@ -3,9 +3,7 @@ package cataloguerepository
 import (
 	"context"
 	"fmt"
-	"time"
 
-	"github.com/bungysheep/catalogue-api/pkg/configs"
 	cataloguemodel "github.com/bungysheep/catalogue-api/pkg/models/v1/catalogue"
 	"github.com/bungysheep/catalogue-api/pkg/protocols/database"
 	"github.com/bungysheep/catalogue-api/pkg/repositories/v1/customfielddefinitionrepository"
@@ -40,7 +38,7 @@ func (clgRepo *catalogueRepository) GetByID(ctx context.Context, code string) (*
 	stmt, err := conn.PrepareContext(ctx,
 		`SELECT code, descr, details, status, created_by, created_at, modified_by, modified_at, vers
 		FROM catalogues 
-		WHERE code=?`)
+		WHERE code=$1`)
 	if err != nil {
 		return nil, fmt.Errorf("Failed preparing read catalogue, error: %v", err)
 	}
@@ -59,23 +57,18 @@ func (clgRepo *catalogueRepository) GetByID(ctx context.Context, code string) (*
 		return nil, nil
 	}
 
-	var createdAt string
-	var modifiedAt string
 	if err := rows.Scan(
 		&result.Code,
 		&result.Description,
 		&result.Details,
 		&result.Status,
 		&result.CreatedBy,
-		&createdAt,
+		&result.CreatedAt,
 		&result.ModifiedBy,
-		&modifiedAt,
+		&result.ModifiedAt,
 		&result.Vers); err != nil {
 		return nil, fmt.Errorf("Failed retrieve catalogue record value, error: %v", err)
 	}
-
-	result.CreatedAt, _ = time.Parse(configs.DATEFORMAT, createdAt)
-	result.ModifiedAt, _ = time.Parse(configs.DATEFORMAT, modifiedAt)
 
 	fieldDefRepo := customfielddefinitionrepository.NewCustomFieldDefinitionRepository()
 	fieldDefs, err := fieldDefRepo.GetByCatalogue(ctx, code)
@@ -111,8 +104,6 @@ func (clgRepo *catalogueRepository) GetAll(ctx context.Context) ([]*cataloguemod
 	}
 	defer rows.Close()
 
-	var createdAt string
-	var modifiedAt string
 	for {
 		if !rows.Next() {
 			if err := rows.Err(); err != nil {
@@ -128,15 +119,12 @@ func (clgRepo *catalogueRepository) GetAll(ctx context.Context) ([]*cataloguemod
 			&catalogue.Details,
 			&catalogue.Status,
 			&catalogue.CreatedBy,
-			&createdAt,
+			&catalogue.CreatedAt,
 			&catalogue.ModifiedBy,
-			&modifiedAt,
+			&catalogue.ModifiedAt,
 			&catalogue.Vers); err != nil {
 			return result, fmt.Errorf("Failed retrieve catalogue record value, error: %v", err)
 		}
-
-		catalogue.CreatedAt, _ = time.Parse(configs.DATEFORMAT, createdAt)
-		catalogue.ModifiedAt, _ = time.Parse(configs.DATEFORMAT, modifiedAt)
 
 		result = append(result, catalogue)
 	}
@@ -154,7 +142,7 @@ func (clgRepo *catalogueRepository) Create(ctx context.Context, data *cataloguem
 	stmt, err := conn.PrepareContext(ctx,
 		`INSERT INTO catalogues 
 			(code, descr, details, status, created_by, created_at, modified_by, modified_at, vers) 
-		VALUES (?, ?, ?, ?, ?, ?, ?, ?, 1)`)
+		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, 1)`)
 	if err != nil {
 		return 0, fmt.Errorf("Failed preparing insert catalogue, error: %v", err)
 	}
@@ -176,8 +164,8 @@ func (clgRepo *catalogueRepository) Update(ctx context.Context, data *cataloguem
 	defer conn.Close()
 
 	stmt, err := conn.PrepareContext(ctx,
-		`UPDATE catalogues SET descr=?, details=?, status=?, modified_by=?, modified_at=?, vers=vers+1 
-		WHERE code=?`)
+		`UPDATE catalogues SET descr=$1, details=$2, status=$3, modified_by=$4, modified_at=$5, vers=vers+1 
+		WHERE code=$6`)
 	if err != nil {
 		return 0, fmt.Errorf("Failed preparing update catalogue, error: %v", err)
 	}
@@ -200,7 +188,7 @@ func (clgRepo *catalogueRepository) Delete(ctx context.Context, code string) (in
 
 	stmt, err := conn.PrepareContext(ctx,
 		`DELETE FROM catalogues 
-		WHERE code=?`)
+		WHERE code=$1`)
 	if err != nil {
 		return 0, fmt.Errorf("Failed preparing delete catalogue, error: %v", err)
 	}
